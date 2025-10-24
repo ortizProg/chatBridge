@@ -7,6 +7,10 @@ export const COLORS = {
   text: "#ffffff",
   textSecondary: "#bbbbbb",
   border: "#1f1f1f",
+  bubbleRight: "#1a2f4d",      
+  bubbleLeft: "#1f1f1f",       
+  bubbleRightBorder: "#2d5a8f", 
+  bubbleLeftBorder: "#333333",  
 };
 
 export const GLOBAL = StyleSheet.create({
