@@ -51,7 +51,7 @@ export default function TabBar({ state, navigation }) {
         style={styles.tabButton}
       >
         <Ionicons
-          name={state.index === 4 ? "menu" : "menu-outline"}
+          name={state.index === 4 ? "settings" : "settings-outline"}
           size={28}
           color={state.index === 4 ? COLORS.primary : COLORS.textSecondary}
         />
