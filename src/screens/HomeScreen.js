@@ -1,9 +1,9 @@
-import React from "react";
 import { View, Text, FlatList } from "react-native";
 import Header from "../components/Header";
 import SearchBar from "../components/SearchBar";
 import DiscussionItem from "../components/DiscussionItem";
 import { GLOBAL } from "../styles/styles";
+import { useAuth } from "../contexts/authContext";
 
 const data = [
   { id: "1", title: "Sin clase o miedo?", stats: { likes: 10, comments: 2, views: 7 } },
@@ -12,6 +12,9 @@ const data = [
 ];
 
 export default function HomeScreen() {
+
+  const {signIn} = useAuth();
+
   return (
     <View style={GLOBAL.container}>
       <Header />
