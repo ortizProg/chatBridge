@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 
 import { auth } from '../firebase';
 
@@ -42,8 +42,19 @@ export const AuthProvider = ({ children }) => {
         });
     }
 
+    const logout = async () => {
+        try {
+            await signOut(auth);
+            setUser(null);
+            return true;
+        } catch (error) {
+            console.log(error);
+            Alert.alert('Error al cerrar sesión', error.message);
+        }
+    }
+
     const value = useMemo(
-        () => ({user, signIn, signUp}),
+        () => ({user, signIn, signUp, logout}),
         [user]
     )
         
