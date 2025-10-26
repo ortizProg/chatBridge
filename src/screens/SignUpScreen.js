@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,22 +9,26 @@ import {
   Platform,
   ScrollView,
   StatusBar,
-} from 'react-native';
+} from "react-native";
+import { useAuth } from "../contexts/authContext";
 
-export default function SignupScreen({ navigate, onRegister }) {
-  const [email, setEmail] = useState('');
-  const [pass1, setPass1] = useState('');
-  const [pass2, setPass2] = useState('');
+export default function SignUpScreen({ navigation }) {
+  const { user, signUp } = useAuth();
+  useEffect(() => {
+    // si user existe => ya está logueado => vamos al Home
+    if (user) {
+      navigation.navigate("Home");
+    }
+  }, [user, navigation]);
+
+  const [email, setEmail] = useState("");
+  const [pass1, setPass1] = useState("");
+  const [pass2, setPass2] = useState("");
 
   const [showPass1, setShowPass1] = useState(false);
   const [showPass2, setShowPass2] = useState(false);
 
-  const [errors, setErrors] = useState<{
-    email,
-    pass1,
-    pass2,
-    global,
-  }>({});
+  const [errors, setErrors] = useState({});
 
   const canSubmit =
     email.trim().length > 0 &&
@@ -35,16 +39,16 @@ export default function SignupScreen({ navigate, onRegister }) {
     const newErrors = {};
 
     // validación simple
-    if (!email.trim()) newErrors.email = 'Ingresa tu correo';
-    if (!pass1.trim()) newErrors.pass1 = 'Ingresa una contraseña';
-    if (!pass2.trim()) newErrors.pass2 = 'Confirma tu contraseña';
+    if (!email.trim()) newErrors.email = "Ingresa tu correo";
+    if (!pass1.trim()) newErrors.pass1 = "Ingresa una contraseña";
+    if (!pass2.trim()) newErrors.pass2 = "Confirma tu contraseña";
 
     if (pass1.trim() && pass1.trim().length < 6) {
-      newErrors.pass1 = 'Mínimo 6 caracteres';
+      newErrors.pass1 = "Mínimo 6 caracteres";
     }
 
     if (pass1.trim() && pass2.trim() && pass1.trim() !== pass2.trim()) {
-      newErrors.pass2 = 'Las contraseñas no coinciden';
+      newErrors.pass2 = "Las contraseñas no coinciden";
     }
 
     setErrors(newErrors);
@@ -52,13 +56,11 @@ export default function SignupScreen({ navigate, onRegister }) {
     if (Object.keys(newErrors).length > 0) return;
 
     try {
-      await onRegister?.(email.trim(), pass1.trim());
-      // si el registro fue bien, lo normal es mandarlo al login
-      navigate?.('Login');
+      await signUp?.(email.trim(), pass1.trim());
     } catch (err) {
       setErrors({
         ...newErrors,
-        global: err?.message || 'No se pudo crear la cuenta',
+        global: err?.message || "No se pudo crear la cuenta",
       });
     }
   };
@@ -68,7 +70,7 @@ export default function SignupScreen({ navigate, onRegister }) {
       <StatusBar barStyle="light-content" />
 
       <KeyboardAvoidingView
-        behavior={Platform.select({ ios: 'padding', android: undefined })}
+        behavior={Platform.select({ ios: "padding", android: undefined })}
         style={{ flex: 1 }}
       >
         <ScrollView
@@ -82,9 +84,7 @@ export default function SignupScreen({ navigate, onRegister }) {
             </View>
 
             <Text style={styles.brandName}>Crea tu cuenta</Text>
-            <Text style={styles.brandSubtitle}>
-              Es rápido y gratis ✨
-            </Text>
+            <Text style={styles.brandSubtitle}>Es rápido y gratis ✨</Text>
           </View>
 
           {/* CARD */}
@@ -160,7 +160,7 @@ export default function SignupScreen({ navigate, onRegister }) {
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
                   <Text style={styles.rightActionText}>
-                    {showPass1 ? 'Ocultar' : 'Ver'}
+                    {showPass1 ? "Ocultar" : "Ver"}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -204,7 +204,7 @@ export default function SignupScreen({ navigate, onRegister }) {
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
                   <Text style={styles.rightActionText}>
-                    {showPass2 ? 'Ocultar' : 'Ver'}
+                    {showPass2 ? "Ocultar" : "Ver"}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -221,7 +221,10 @@ export default function SignupScreen({ navigate, onRegister }) {
 
             {/* CTA CREATE ACCOUNT */}
             <TouchableOpacity
-              style={[styles.primaryBtn, !canSubmit && styles.primaryBtnDisabled]}
+              style={[
+                styles.primaryBtn,
+                !canSubmit && styles.primaryBtnDisabled,
+              ]}
               disabled={!canSubmit}
               activeOpacity={0.8}
               onPress={handleSubmit}
@@ -232,7 +235,7 @@ export default function SignupScreen({ navigate, onRegister }) {
             {/* Already have account */}
             <View style={styles.loginRow}>
               <Text style={styles.loginText}>¿Ya tienes cuenta?</Text>
-              <TouchableOpacity onPress={() => navigate?.('Login')}>
+              <TouchableOpacity onPress={() => navigation?.navigate?.("Login")}>
                 <Text style={styles.loginCta}> Iniciar sesión</Text>
               </TouchableOpacity>
             </View>
@@ -251,13 +254,13 @@ export default function SignupScreen({ navigate, onRegister }) {
 }
 
 // Tokens de color compartidos con Login
-const BG = '#0f172a'; // fondo app
-const CARD_BG = '#1e2537'; // card
-const BORDER = 'rgba(255,255,255,0.07)';
-const TEXT_MAIN = '#fff';
-const TEXT_DIM = '#94a3b8';
-const ACCENT = '#38bdf8';
-const ERROR = '#f87171';
+const BG = "#0f172a"; // fondo app
+const CARD_BG = "#1e2537"; // card
+const BORDER = "rgba(255,255,255,0.07)";
+const TEXT_MAIN = "#fff";
+const TEXT_DIM = "#94a3b8";
+const ACCENT = "#38bdf8";
+const ERROR = "#f87171";
 
 const styles = StyleSheet.create({
   screen: {
@@ -268,36 +271,36 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: 24,
     paddingTop:
-      64 + (Platform.OS === 'android' ? StatusBar.currentHeight || 0 : 0),
+      64 + (Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0),
     paddingBottom: 40,
   },
 
   // Header
   brandContainer: {
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 32,
   },
   logoCircle: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: "rgba(255,255,255,0.05)",
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.15)',
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderColor: "rgba(255,255,255,0.15)",
+    justifyContent: "center",
+    alignItems: "center",
     marginBottom: 12,
   },
   logoText: {
     color: TEXT_MAIN,
     fontSize: 28,
-    fontWeight: '600',
+    fontWeight: "600",
     letterSpacing: -0.5,
   },
   brandName: {
     color: TEXT_MAIN,
     fontSize: 20,
-    fontWeight: '600',
+    fontWeight: "600",
     letterSpacing: -0.4,
   },
   brandSubtitle: {
@@ -314,7 +317,7 @@ const styles = StyleSheet.create({
     borderColor: BORDER,
     padding: 20,
 
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.5,
     shadowRadius: 32,
     shadowOffset: { width: 0, height: 24 },
@@ -326,19 +329,19 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    color: '#e2e8f0',
+    color: "#e2e8f0",
     fontSize: 14,
     marginBottom: 8,
-    fontWeight: '500',
+    fontWeight: "500",
   },
 
   inputContainer: {
-    backgroundColor: 'rgba(15,23,42,0.6)',
+    backgroundColor: "rgba(15,23,42,0.6)",
     borderWidth: 1,
     borderColor: BORDER,
     borderRadius: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 12,
     height: 52,
   },
@@ -348,9 +351,9 @@ const styles = StyleSheet.create({
   },
 
   leftIcon: {
-    color: '#94a3b8',
+    color: "#94a3b8",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     paddingRight: 8,
   },
   leftIconError: {
@@ -361,7 +364,7 @@ const styles = StyleSheet.create({
     flex: 1,
     color: TEXT_MAIN,
     fontSize: 15,
-    fontWeight: '500',
+    fontWeight: "500",
     paddingVertical: 0,
   },
 
@@ -371,7 +374,7 @@ const styles = StyleSheet.create({
   },
   rightActionText: {
     fontSize: 13,
-    fontWeight: '500',
+    fontWeight: "500",
     color: TEXT_DIM,
   },
 
@@ -379,29 +382,29 @@ const styles = StyleSheet.create({
     color: ERROR,
     fontSize: 13,
     marginTop: 6,
-    fontWeight: '400',
+    fontWeight: "400",
   },
 
   globalError: {
     color: ERROR,
-    backgroundColor: 'rgba(248,113,113,0.08)',
-    borderColor: 'rgba(248,113,113,0.4)',
+    backgroundColor: "rgba(248,113,113,0.08)",
+    borderColor: "rgba(248,113,113,0.4)",
     borderWidth: 1,
     fontSize: 13,
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 10,
     marginBottom: 16,
-    textAlign: 'center',
-    fontWeight: '500',
+    textAlign: "center",
+    fontWeight: "500",
   },
 
   primaryBtn: {
     backgroundColor: ACCENT,
     borderRadius: 16,
     height: 54,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
 
     shadowColor: ACCENT,
     shadowOpacity: 0.6,
@@ -416,13 +419,13 @@ const styles = StyleSheet.create({
   primaryBtnText: {
     color: BG,
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     letterSpacing: -0.3,
   },
 
   loginRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
     marginTop: 24,
   },
   loginText: {
@@ -432,7 +435,7 @@ const styles = StyleSheet.create({
   loginCta: {
     color: ACCENT,
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 
   termsWrapper: {
@@ -443,6 +446,6 @@ const styles = StyleSheet.create({
     color: TEXT_DIM,
     fontSize: 12,
     lineHeight: 18,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });

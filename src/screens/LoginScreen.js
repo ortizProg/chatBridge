@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -12,8 +12,14 @@ import {
 } from "react-native";
 import { useAuth } from "../contexts/authContext";
 
-export default function LoginScreen({ navigate }) {
-  const { signIn } = useAuth();
+export default function LoginScreen({navigation}) {
+  const { user, signIn } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      navigation.navigate('Home');
+    }
+  }, [user, navigation]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,7 +39,7 @@ export default function LoginScreen({ navigate }) {
     if (Object.keys(newErrors).length > 0) return;
 
     try {
-      await signIn(email, password);
+        await signIn(email, password);
     } catch (err) {
       setErrors({
         ...newErrors,
@@ -60,8 +66,8 @@ export default function LoginScreen({ navigate }) {
               <Text style={styles.logoText}>M</Text>
             </View>
 
-            <Text style={styles.brandName}>MetApp</Text>
-            <Text style={styles.brandSubtitle}>Bienvenido de nuevo 👋</Text>
+            <Text style={styles.brandName}>ChatBridge</Text>
+            <Text style={styles.brandSubtitle}>Bienvenido de nuevo</Text>
           </View>
 
           {/* CARD */}
@@ -151,7 +157,7 @@ export default function LoginScreen({ navigate }) {
             {/* Forgot password */}
             <TouchableOpacity
               style={styles.forgotBtn}
-              onPress={() => navigate?.("ForgotPassword")}
+              onPress={() => navigation?.navigate?.("ForgotPassword")}
             >
               <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
             </TouchableOpacity>
@@ -195,7 +201,7 @@ export default function LoginScreen({ navigate }) {
           {/* Register CTA */}
           <View style={styles.registerRow}>
             <Text style={styles.registerText}>¿No tienes cuenta?</Text>
-            <TouchableOpacity onPress={() => navigate?.("Register")}>
+            <TouchableOpacity onPress={() => navigation?.navigate?.("Register")}>
               <Text style={styles.registerCta}> Crear cuenta</Text>
             </TouchableOpacity>
           </View>

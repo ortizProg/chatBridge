@@ -3,7 +3,6 @@ import Header from "../components/Header";
 import SearchBar from "../components/SearchBar";
 import DiscussionItem from "../components/DiscussionItem";
 import { GLOBAL } from "../styles/styles";
-import { useAuth } from "../contexts/authContext";
 
 const data = [
   { id: "1", title: "Sin clase o miedo?", stats: { likes: 10, comments: 2, views: 7 } },
@@ -11,13 +10,11 @@ const data = [
   { id: "3", title: "Soy Dayro Moreno el mejor futbolista y me gusta la compota sabor aguardiente :)", stats: { likes: 10, comments: 5, views: 7 } },
 ];
 
-export default function HomeScreen() {
-
-  const {signIn} = useAuth();
+export default function HomeScreen({ navigation }) {
 
   return (
     <View style={GLOBAL.container}>
-      <Header />
+      <Header navigation={navigation} />
       <SearchBar />
 
       <View style={GLOBAL.tabs}>

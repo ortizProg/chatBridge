@@ -2,8 +2,21 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS, GLOBAL } from "../styles/styles";
+import { useAuth } from "../contexts/authContext";
 
-export default function Header() {
+export default function Header({ navigation }) {
+
+  const {user} = useAuth();
+  console.log("🚀 ~ Header ~ user:", user)
+
+  const onPressProfile= () => {
+
+    if (user) {
+      return navigation.navigate('Profile')
+    }
+    navigation.navigate('Login')
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.logoContainer}>
@@ -18,7 +31,7 @@ export default function Header() {
         <TouchableOpacity>
           <Ionicons name="notifications-outline" size={24} color={COLORS.primary} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.profile}>
+        <TouchableOpacity style={styles.profile} onPress={onPressProfile}>
           <Ionicons name="person-circle-outline" size={28} color={COLORS.accent} />
         </TouchableOpacity>
       </View>

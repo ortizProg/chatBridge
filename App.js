@@ -10,8 +10,7 @@ export default function App() {
   return (
     <AuthProvider>
       <View style={styles.container}>
-        <LoginScreen></LoginScreen>
-        {/* <AppNavigator /> */}
+        <AppNavigator />
         <StatusBar style="auto" />
       </View>
     </AuthProvider>
