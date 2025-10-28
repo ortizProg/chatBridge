@@ -5,9 +5,24 @@ import DiscussionItem from "../components/DiscussionItem";
 import { GLOBAL } from "../styles/styles";
 
 const data = [
-  { id: "1", title: "Sin clase o miedo?", stats: { likes: 10, comments: 2, views: 7 } },
-  { id: "2", title: "Hola profe son las 3 AM y aun sigo desarrollando, pero es lo que me gusta. A quien mas le gusta el desarrollo?", stats: { likes: 10, comments: 5, views: 7 } },
-  { id: "3", title: "Soy Dayro Moreno el mejor futbolista y me gusta la compota sabor aguardiente :)", stats: { likes: 10, comments: 5, views: 7 } },
+  { 
+    id: "1", 
+    title: "Sin clase o miedo?",
+    description: "Discusión abierta sobre los retos de la educación moderna.",
+    stats: { likes: 10, comments: 2, views: 7 } 
+  },
+  { 
+    id: "2", 
+    title: "Hola profe son las 3 AM y aun sigo desarrollando",
+    description: "Sigo trabajando en mis proyectos. ¿Quién más disfruta programar a estas horas?",
+    stats: { likes: 10, comments: 5, views: 7 } 
+  },
+  { 
+    id: "3", 
+    title: "Soy Dayro Moreno el mejor futbolista",
+    description: "Me gusta la compota sabor aguardiente :) una charla relajada entre amigos.",
+    stats: { likes: 10, comments: 5, views: 7 } 
+  },
 ];
 
 export default function HomeScreen({ navigation }) {
