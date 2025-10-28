@@ -1,4 +1,3 @@
-import React from "react";
 import { View, Text, FlatList } from "react-native";
 import Header from "../components/Header";
 import SearchBar from "../components/SearchBar";
@@ -26,10 +25,11 @@ const data = [
   },
 ];
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
+
   return (
     <View style={GLOBAL.container}>
-      <Header />
+      <Header navigation={navigation} />
       <SearchBar />
 
       <View style={GLOBAL.tabs}>

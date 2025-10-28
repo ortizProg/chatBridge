@@ -2,8 +2,12 @@ import React from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS, GLOBAL } from "../styles/styles";
+import { useAuth } from "../contexts/authContext";
 
 export default function TabBar({ state, navigation }) {
+
+  const {user} = useAuth();
+
   return (
     <View style={styles.container}>
       <TouchableOpacity
@@ -28,12 +32,13 @@ export default function TabBar({ state, navigation }) {
         />
       </TouchableOpacity>
 
+      {user ? 
       <TouchableOpacity
         onPress={() => navigation.navigate("AddPublication")}
         style={styles.tabButtonCenter}
       >
         <Ionicons name="add-circle" size={50} color={COLORS.accent} />
-      </TouchableOpacity>
+      </TouchableOpacity> : null}
 
       <TouchableOpacity
         onPress={() => navigation.navigate("Events")}
