@@ -16,10 +16,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../contexts/authContext";
 import { COLORS } from '../styles/styles';
 
+let submitted = false;
+
 export default function LoginScreen({navigation}) {
   const { user, signIn } = useAuth();
-
-  let submitted = false;
 
   useEffect(() => {
     if (user) {
@@ -185,12 +185,12 @@ export default function LoginScreen({navigation}) {
             </View>
 
             {/* Forgot password */}
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.forgotBtn}
               onPress={() => navigation?.navigate?.("ForgotPassword")}
             >
               <Text style={styles.forgotText}>¿Olvidaste tu contraseña?</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             {/* Error global */}
             {errors.global && (

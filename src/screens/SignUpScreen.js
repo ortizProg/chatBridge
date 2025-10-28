@@ -16,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useAuth } from "../contexts/authContext";
 import { COLORS } from "../styles/styles";
 
+let submitted = false;
 
 export default function SignUpScreen({ navigation }) {
   const { user, signUp } = useAuth();
@@ -41,7 +42,6 @@ export default function SignUpScreen({ navigation }) {
     pass1.trim().length > 0 &&
     pass2.trim().length > 0;
 
-  let submitted = false;
 
   const handleSubmit = async () => {
     
