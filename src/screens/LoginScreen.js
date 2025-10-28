@@ -9,11 +9,17 @@ import {
   Platform,
   ScrollView,
   StatusBar,
+  Image,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+
 import { useAuth } from "../contexts/authContext";
+import { COLORS } from '../styles/styles';
 
 export default function LoginScreen({navigation}) {
   const { user, signIn } = useAuth();
+
+  const submitted = false;
 
   useEffect(() => {
     if (user) {
@@ -31,20 +37,29 @@ export default function LoginScreen({navigation}) {
   const canSubmit = email.trim().length > 0 && password.trim().length > 0;
 
   const handleSubmit = async () => {
-    const newErrors = {};
-    if (!email.trim()) newErrors.email = "Ingresa tu correo";
-    if (!password.trim()) newErrors.password = "Ingresa tu contraseña";
-    setErrors(newErrors);
 
-    if (Object.keys(newErrors).length > 0) return;
+    if(submitted) return;
+
+    submitted = true;
 
     try {
-        await signIn(email, password);
-    } catch (err) {
-      setErrors({
-        ...newErrors,
-        global: err?.message || "Correo o contraseña incorrectos",
-      });
+      const newErrors = {};
+      if (!email.trim()) newErrors.email = "Ingresa tu correo";
+      if (!password.trim()) newErrors.password = "Ingresa tu contraseña";
+      setErrors(newErrors);
+  
+      if (Object.keys(newErrors).length > 0) return;
+  
+      try {
+          await signIn(email, password);
+      } catch (err) {
+        setErrors({
+          ...newErrors,
+          global: err?.message || "Correo o contraseña incorrectos",
+        });
+      }
+    } finally {
+      submitted = false;
     }
   };
 
@@ -62,12 +77,12 @@ export default function LoginScreen({navigation}) {
         >
           {/* BRAND / HEADER */}
           <View style={styles.brandContainer}>
-            <View style={styles.logoCircle}>
-              <Text style={styles.logoText}>M</Text>
-            </View>
-
-            <Text style={styles.brandName}>ChatBridge</Text>
-            <Text style={styles.brandSubtitle}>Bienvenido de nuevo</Text>
+            <Image 
+              source={require("../assets/images/Logo.png")} 
+              style={styles.logo} 
+              resizeMode="contain"
+            />
+            <Text style={styles.brandSubtitle}>Tu lugar de confianza</Text>
           </View>
 
           {/* CARD */}
@@ -83,18 +98,18 @@ export default function LoginScreen({navigation}) {
                 ]}
               >
                 {/* "icono" fake con solo texto */}
-                <Text
+                <Ionicons 
+                  name="mail-outline"
+                  color={COLORS.textSecondary || '#aaa'}
                   style={[
                     styles.leftIcon,
                     errors.email && styles.leftIconError,
                   ]}
-                >
-                  @
-                </Text>
+                />                
 
                 <TextInput
                   style={styles.input}
-                  placeholder="tucorreo@empresa.com"
+                  placeholder="tucorreo@gmail.com"
                   placeholderTextColor="#64748b"
                   value={email}
                   onChangeText={setEmail}
@@ -119,14 +134,14 @@ export default function LoginScreen({navigation}) {
                   errors.password && styles.inputErrorBorder,
                 ]}
               >
-                <Text
+                <Ionicons 
+                  name="lock-closed-outline"
+                  color={COLORS.textSecondary || '#aaa'}
                   style={[
                     styles.leftIcon,
                     errors.password && styles.leftIconError,
                   ]}
-                >
-                  *
-                </Text>
+                /> 
 
                 <TextInput
                   style={styles.input}
@@ -143,9 +158,24 @@ export default function LoginScreen({navigation}) {
                   style={styles.rightActionBtn}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
-                  <Text style={styles.rightActionText}>
-                    {passwordVisible ? "Ocultar" : "Ver"}
-                  </Text>
+                  {
+                    passwordVisible ?  
+                    <Ionicons 
+                      name="eye-outline"
+                      color={COLORS.textSecondary || '#aaa'}
+                      style={[
+                        styles.rightActionText,
+                      ]}
+                    /> 
+                    : 
+                    <Ionicons 
+                      name="eye-off-outline"
+                      color={COLORS.textSecondary || '#aaa'}
+                      style={[
+                        styles.rightActionText,
+                      ]}
+                    /> 
+                  }
                 </TouchableOpacity>
               </View>
 
@@ -178,14 +208,14 @@ export default function LoginScreen({navigation}) {
             </TouchableOpacity>
 
             {/* Divider */}
-            <View style={styles.dividerRow}>
+            {/* <View style={styles.dividerRow}>
               <View style={styles.dividerLine} />
               <Text style={styles.dividerText}>o continúa con</Text>
               <View style={styles.dividerLine} />
-            </View>
+            </View> */}
 
             {/* Botones sociales "fake" sin SDKs */}
-            <View style={styles.socialRow}>
+            {/* <View style={styles.socialRow}>
               <TouchableOpacity style={styles.socialBtn}>
                 <Text style={styles.socialBtnIcon}>f</Text>
                 <Text style={styles.socialText}>Facebook</Text>
@@ -195,7 +225,7 @@ export default function LoginScreen({navigation}) {
                 <Text style={styles.socialBtnIcon}>{`{}`}</Text>
                 <Text style={styles.socialText}>Github</Text>
               </TouchableOpacity>
-            </View>
+            </View> */}
           </View>
 
           {/* Register CTA */}
@@ -211,18 +241,15 @@ export default function LoginScreen({navigation}) {
   );
 }
 
-const BG = "#0f172a"; // gris azulado profundo tipo Tailwind slate-900
-const CARD_BG = "#1e2537"; // un poco más claro para separar
-const BORDER = "rgba(255,255,255,0.07)";
+const CARD_BG = "#1f1f1f";
 const TEXT_MAIN = "#fff";
 const TEXT_DIM = "#94a3b8";
-const ACCENT = "#38bdf8";
 const ERROR = "#f87171";
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: BG,
+    backgroundColor: COLORS.background,
   },
   scroll: {
     flexGrow: 1,
@@ -270,8 +297,6 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: CARD_BG,
     borderRadius: 24,
-    borderWidth: 1,
-    borderColor: BORDER,
     padding: 20,
 
     // sombra iOS
@@ -294,9 +319,7 @@ const styles = StyleSheet.create({
   },
 
   inputContainer: {
-    backgroundColor: "rgba(15,23,42,0.6)", // same vibe oscuro
-    borderWidth: 1,
-    borderColor: BORDER,
+    backgroundColor: COLORS.background,
     borderRadius: 14,
     flexDirection: "row",
     alignItems: "center",
@@ -331,7 +354,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   rightActionText: {
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: "500",
     color: TEXT_DIM,
   },
@@ -342,7 +365,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   forgotText: {
-    color: ACCENT,
+    color: COLORS.primary,
     fontSize: 13,
     fontWeight: "500",
   },
@@ -369,13 +392,13 @@ const styles = StyleSheet.create({
   },
 
   loginBtn: {
-    backgroundColor: ACCENT,
+    backgroundColor: COLORS.primary,
     borderRadius: 16,
     height: 54,
     alignItems: "center",
     justifyContent: "center",
 
-    shadowColor: ACCENT,
+    shadowColor: COLORS.primary,
     shadowOpacity: 0.6,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 8 },
@@ -386,7 +409,7 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   loginBtnText: {
-    color: BG,
+    color: COLORS.background,
     fontSize: 16,
     fontWeight: "600",
     letterSpacing: -0.3,
@@ -438,7 +461,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     letterSpacing: -0.2,
   },
-
   registerRow: {
     flexDirection: "row",
     justifyContent: "center",
@@ -449,8 +471,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   registerCta: {
-    color: ACCENT,
+    color: COLORS.primary,
     fontSize: 14,
     fontWeight: "600",
   },
+  logo: {
+    width: 80,
+    height: 80,
+    justifyContent: "center",
+    alignItems: "center",
+  }
 });

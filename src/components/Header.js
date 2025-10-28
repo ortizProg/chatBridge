@@ -7,7 +7,6 @@ import { useAuth } from "../contexts/authContext";
 export default function Header({ navigation }) {
 
   const {user} = useAuth();
-  console.log("🚀 ~ Header ~ user:", user)
 
   const onPressProfile= () => {
 
