@@ -1,170 +1,147 @@
+import React, { useState } from 'react';
 import { 
-  StyleSheet, 
-  Text, 
   View, 
-  SafeAreaView, 
   TextInput, 
   TouchableOpacity, 
-  ScrollView,
-  Platform, // Necesario para el date picker
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  Alert,
+  Platform,
+  ActivityIndicator 
 } from 'react-native';
-import React, { useState } from 'react';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, GLOBAL } from '../styles/styles';
-import { Ionicons } from "@expo/vector-icons"; 
 
-// Componente Custom Input para evitar repetir estilos
-const CustomInput = ({ label, placeholder, isRequired = false, ...props }) => (
+const CustomInput = ({ label, placeholder, isRequired = false, style, ...props }) => (
   <View style={styles.inputGroup}>
     <Text style={[styles.inputLabel, GLOBAL.text]}>
       {label}{isRequired && <Text style={{ color: COLORS.accent }}>*</Text>}
     </Text>
     <TextInput
-      style={[styles.input, GLOBAL.text]}
+      style={[styles.input, style, GLOBAL.text]}
       placeholder={placeholder}
-      placeholderTextColor={COLORS.textSecondary || '#aaa'}
+      placeholderTextColor={COLORS.textSecondary || '#888'}
       {...props}
     />
   </View>
 );
 
-// --- Pantalla Crear Evento ---
-export default function CreateEventScreen({ navigation }) {
-  const [eventName, setEventName] = useState('');
+export default function EventForm() {
+  const insets = useSafeAreaInsets();
+  const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [address, setAddress] = useState('');
-  const [dateTime, setDateTime] = useState('');
+  const [date, setDate] = useState('');
+  const [time, setTime] = useState('');
   const [maxCapacity, setMaxCapacity] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleCreateEvent = () => {
-    // 1. Validar campos requeridos (Nombre, Descripción, Dirección, Fecha)
-    if (!eventName || !description || !address || !dateTime) {
-      alert('Por favor, complete todos los campos requeridos (*).');
-      return;
-    }
-    
-    // 2. Lógica para enviar el evento al servidor (API Call)
-    console.log('Creando evento con datos:', { eventName, description, address, dateTime, maxCapacity });
-    
-    // 3. Navegar o cerrar el modal
-    // navigation.goBack(); // O navegar a la lista de eventos
+  const handlePublish = () => {
+    Alert.alert('En desarrollo', 'La función de publicar eventos aún está en desarrollo.');
   };
 
   return (
-    // SafeAreaView para manejar las áreas seguras (notch)
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.container}>
-        
-        {/* --- Encabezado del Modal con Botón Cerrar (x) --- */}
-        <View style={styles.header}>
-          <Text style={[styles.headerTitle, GLOBAL.text]}>Crear Evento</Text>
-          <TouchableOpacity 
-            style={styles.closeButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="close" size={28} color={COLORS.primary} />
-          </TouchableOpacity>
-        </View>
+    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+      <Text style={[styles.headerTitle, GLOBAL.text]}>Crear Evento</Text>
 
-        {/* --- Formulario --- */}
-        <ScrollView 
-          style={styles.formScroll}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          
-          <CustomInput 
-            label="Nombre"
-            placeholder="Introduce el nombre del evento"
-            isRequired
-            value={eventName}
-            onChangeText={setEventName}
-          />
-          
-          <CustomInput 
-            label="Descripción"
-            placeholder="Detalles sobre el evento"
-            isRequired
-            multiline
-            numberOfLines={4}
-            value={description}
-            onChangeText={setDescription}
-            style={styles.multilineInput} // Estilo para altura
-          />
-          
-          <CustomInput 
-            label="Dirección"
-            placeholder="Lugar o punto de encuentro"
-            isRequired
-            value={address}
-            onChangeText={setAddress}
-          />
+      <ScrollView
+        style={styles.formScroll}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+      >
+        <CustomInput 
+          label="Título"
+          placeholder="Introduce el título del evento"
+          isRequired
+          value={title}
+          onChangeText={setTitle}
+          editable={!submitting}
+        />
 
-          {/* Campo de Fecha y Hora */}
-          {/* Nota: En una app real, aquí usarías un DatePicker nativo */}
-          <CustomInput 
-            label="Fecha y hora"
-            placeholder="__/__/__, __:__"
-            isRequired
-            value={dateTime}
-            onChangeText={setDateTime}
-          />
+        <CustomInput 
+          label="Descripción"
+          placeholder="Detalles del evento"
+          isRequired
+          multiline
+          numberOfLines={6}
+          value={description}
+          onChangeText={setDescription}
+          editable={!submitting}
+          style={styles.multilineInput}
+        />
 
-          <CustomInput 
-            label="Aforo máximo"
-            placeholder="Número de personas (opcional)"
-            keyboardType="numeric"
-            value={maxCapacity}
-            onChangeText={setMaxCapacity}
-          />
-          
-        </ScrollView>
-        
-        {/* --- Botón de Crear Evento --- */}
-        <TouchableOpacity style={styles.createButton} onPress={handleCreateEvent}>
-          <Text style={styles.createButtonText}>Crear evento</Text>
-        </TouchableOpacity>
+        <CustomInput 
+          label="Dirección"
+          placeholder="Lugar o punto de encuentro"
+          isRequired
+          value={address}
+          onChangeText={setAddress}
+          editable={!submitting}
+        />
 
-      </View>
-    </SafeAreaView>
+        <CustomInput 
+          label="Fecha"
+          placeholder="Selecciona la fecha (Ej: 28/10/2025)"
+          isRequired
+          value={date}
+          onChangeText={setDate}
+          editable={!submitting}
+        />
+
+        <CustomInput 
+          label="Hora"
+          placeholder="Selecciona la hora (Ej: 21:30)"
+          isRequired
+          value={time}
+          onChangeText={setTime}
+          editable={!submitting}
+        />
+
+        <CustomInput 
+          label="Aforo máximo"
+          placeholder="Número de personas (opcional)"
+          keyboardType="numeric"
+          value={maxCapacity}
+          onChangeText={setMaxCapacity}
+          editable={!submitting}
+        />
+      </ScrollView>
+
+      <TouchableOpacity 
+        style={[styles.createButton, submitting && styles.buttonDisabled]}
+        onPress={handlePublish}
+        disabled={submitting}
+      >
+        {submitting ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.createButtonText}>Publicar</Text>
+        )}
+      </TouchableOpacity>
+    </View>
   );
 }
 
-// --- Estilos de la Pantalla ---
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
   container: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingBottom: 20, // Padding inferior para el botón
     backgroundColor: COLORS.background,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.surface || '#333', // Línea separadora
   },
   headerTitle: {
     fontSize: 20,
     fontWeight: 'bold',
     color: COLORS.primary,
+    textAlign: 'center',
+    marginVertical: 16,
   },
-  closeButton: {
-    padding: 5,
-  },
-  
-  // --- Estilos del Formulario ---
   formScroll: {
     flex: 1,
-    marginTop: 10,
   },
   scrollContent: {
-    paddingBottom: 20, // Espacio extra al final de la lista
+    paddingBottom: 20,
   },
   inputGroup: {
     marginBottom: 20,
@@ -176,30 +153,31 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
   },
   input: {
-    // Estilo general del TextInput
-    backgroundColor: COLORS.surface || '#222', 
+    backgroundColor: COLORS.surface || '#2a2a2a',
     borderRadius: 8,
     paddingHorizontal: 15,
     paddingVertical: 12,
     fontSize: 16,
-    color: COLORS.text,
+    color: COLORS.text || '#fff',
   },
   multilineInput: {
-    height: Platform.OS === 'ios' ? 100 : 100, // Altura para multilínea
+    minHeight: 120,
     textAlignVertical: 'top',
-    paddingTop: 12,
+    color: COLORS.text || '#fff',
   },
-
-  // --- Estilo del Botón de Acción ---
   createButton: {
-    backgroundColor: COLORS.primary, // Color principal para el botón de acción
+    backgroundColor: COLORS.primary,
     borderRadius: 8,
     paddingVertical: 15,
     alignItems: 'center',
-    marginTop: 10, // Separación del formulario
+    marginTop: 10,
+    marginBottom: 10,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   createButtonText: {
-    color: COLORS.background, // Color de texto que contraste con COLORS.primary
+    color: COLORS.background,
     fontSize: 18,
     fontWeight: 'bold',
   },

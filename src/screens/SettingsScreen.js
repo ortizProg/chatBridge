@@ -2,7 +2,7 @@ import { StyleSheet, Text, View, FlatList } from 'react-native';
 
 import { COLORS, GLOBAL } from '../styles/styles';
 import MenuItem from '../components/MenuItem';
-import { useAuth } from '../contexts/authContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function SettingsScreen({navigation}) {
 

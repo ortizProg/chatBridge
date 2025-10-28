@@ -3,28 +3,29 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { COLORS, GLOBAL } from "../styles/styles";
+import { usePosts } from "../context/PostContext";
 
 export default function DiscussionItem({ item }) {
   const navigation = useNavigation();
+  const { updatePostStats } = usePosts();
 
   const goToDetail = () => {
     navigation.navigate("DiscussionDetail", { item });
   };
 
   const handleLike = (e) => {
-    e.stopPropagation(); 
-    console.log("Like presionado para:", item.title);
+    e.stopPropagation();
+    updatePostStats(item.id, 'likes');
   };
 
   const handleComment = (e) => {
-    e.stopPropagation(); 
-    console.log("Comentario presionado para:", item.title);
-    goToDetail(); 
+    e.stopPropagation();
+    goToDetail();
   };
 
   const handleView = (e) => {
-    e.stopPropagation(); 
-    console.log("Vistas presionado para:", item.title);
+    e.stopPropagation();
+    updatePostStats(item.id, 'views');
   };
 
   return (
@@ -34,15 +35,15 @@ export default function DiscussionItem({ item }) {
       onPress={goToDetail}
     >
       <Image
-        source={
-          item.image
-            ? item.image
-            : require("../assets/images/Dayrito.png")
-        }
+        source={require("../assets/images/Dayrito.png")}
         style={styles.avatar}
       />
 
       <View style={styles.content}>
+        <Text style={[styles.author, GLOBAL.textSecondary]} numberOfLines={1}>
+          {item.userName || 'Usuario'}
+        </Text>
+
         <Text style={[styles.title, GLOBAL.text]} numberOfLines={2}>
           {item.title}
         </Text>
@@ -61,10 +62,9 @@ export default function DiscussionItem({ item }) {
           >
             <Ionicons name="eye-outline" size={16} color={COLORS.accent} />
             <Text style={[styles.stat, GLOBAL.textSecondary]}>
-              {item.stats.views}
+              {item.stats?.views || 0}
             </Text>
           </TouchableOpacity>
-
 
           <TouchableOpacity 
             style={styles.statItem}
@@ -73,10 +73,9 @@ export default function DiscussionItem({ item }) {
           >
             <Ionicons name="chatbubble-outline" size={16} color={COLORS.primary} />
             <Text style={[styles.stat, GLOBAL.textSecondary]}>
-              {item.stats.comments}
+              {item.stats?.comments || 0}
             </Text>
           </TouchableOpacity>
-
 
           <TouchableOpacity 
             style={styles.statItem}
@@ -85,7 +84,7 @@ export default function DiscussionItem({ item }) {
           >
             <Ionicons name="flash-outline" size={16} color="#f5c518" />
             <Text style={[styles.stat, GLOBAL.textSecondary]}>
-              {item.stats.likes}
+              {item.stats?.likes || 0}
             </Text>
           </TouchableOpacity>
         </View>
@@ -109,6 +108,10 @@ const styles = StyleSheet.create({
   content: {
     marginLeft: 12,
     flex: 1,
+  },
+  author: {
+    fontSize: 12,
+    marginBottom: 2,
   },
   title: {
     fontSize: 16,
