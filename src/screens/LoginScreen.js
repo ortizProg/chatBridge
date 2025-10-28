@@ -19,7 +19,7 @@ import { COLORS } from '../styles/styles';
 export default function LoginScreen({navigation}) {
   const { user, signIn } = useAuth();
 
-  const submitted = false;
+  let submitted = false;
 
   useEffect(() => {
     if (user) {

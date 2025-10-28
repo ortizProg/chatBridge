@@ -12,6 +12,7 @@ import DiscussionDetailScreen from "../screens/DiscussionDetailScreen";
 import TabBar from "../components/TabBar";
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
+import ProfileScreen from "../screens/ProfileScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -30,6 +31,7 @@ function Tabs() {
       <Tab.Screen name="Settings" component={SettingsScreen} />
       <Tab.Screen name="Login" component={LoginScreen} />
       <Tab.Screen name="Register" component={SignUpScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
