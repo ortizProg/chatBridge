@@ -21,6 +21,7 @@ export default function SignUpScreen({ navigation }) {
     }
   }, [user, navigation]);
 
+  const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [pass1, setPass1] = useState("");
   const [pass2, setPass2] = useState("");
@@ -56,7 +57,7 @@ export default function SignUpScreen({ navigation }) {
     if (Object.keys(newErrors).length > 0) return;
 
     try {
-      await signUp?.(email.trim(), pass1.trim());
+      await signUp?.(email.trim(), pass1.trim(), userName.trim());
     } catch (err) {
       setErrors({
         ...newErrors,
@@ -84,11 +85,47 @@ export default function SignUpScreen({ navigation }) {
             </View>
 
             <Text style={styles.brandName}>Crea tu cuenta</Text>
-            <Text style={styles.brandSubtitle}>Es rápido y gratis ✨</Text>
+            <Text style={styles.brandSubtitle}>Es rápido y gratis</Text>
           </View>
 
           {/* CARD */}
           <View style={styles.card}>
+             {/* USERNAME */}
+            <View style={styles.fieldWrapper}>
+              <Text style={styles.label}>Nombre de usuario</Text>
+
+              <View
+                style={[
+                  styles.inputContainer,
+                  errors.userName && styles.inputErrorBorder,
+                ]}
+              >
+                {/* pseudo-icono */}
+                <Text
+                  style={[
+                    styles.leftIcon,
+                    errors.userName && styles.leftIconError,
+                  ]}
+                >
+                  
+                </Text>
+
+                <TextInput
+                  style={styles.input}
+                  placeholder="Nombre de usuario"
+                  placeholderTextColor="#64748b"
+                  value={userName}
+                  onChangeText={setUserName}
+                  autoCapitalize="none"
+                  autoCorrect={false}
+                  keyboardType="default"
+                />
+              </View>
+
+              {errors.email && (
+                <Text style={styles.errorText}>{errors.userName}</Text>
+              )}
+            </View>
             {/* EMAIL */}
             <View style={styles.fieldWrapper}>
               <Text style={styles.label}>Correo</Text>

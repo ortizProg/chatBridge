@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
+import { doc, setDoc } from "firebase/firestore";
 
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
 
 const AuthContext = createContext(undefined);
 
@@ -31,9 +32,14 @@ export const AuthProvider = ({ children }) => {
         });
     }
 
-    const signUp = async (email, password) => {
+    const signUp = async (email, password, userName) => {
         return await createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
+        .then(async (userCredential) => {
+            await setDoc(doc(db, "users", userCredential.user.uid), {
+                userName,
+                email,
+                createdAt: new Date().toISOString(),
+            });
             setUser(userCredential.user);
         })
         .catch(error => {
