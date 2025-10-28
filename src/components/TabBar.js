@@ -2,7 +2,7 @@ import React from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS, GLOBAL } from "../styles/styles";
-import { useAuth } from "../contexts/authContext";
+import { useAuth } from "../context/AuthContext";
 
 export default function TabBar({ state, navigation }) {
 

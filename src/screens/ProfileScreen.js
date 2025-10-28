@@ -8,7 +8,7 @@ import { GLOBAL, COLORS } from "../styles/styles";
 import { doc, getDoc } from "firebase/firestore";
 
 import { db } from '../firebase';
-import { useAuth } from "../contexts/authContext";
+import { useAuth } from "../context/AuthContext";
 
 export default function ProfileScreen({ navigation }) {
 
