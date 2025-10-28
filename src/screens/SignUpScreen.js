@@ -9,8 +9,11 @@ import {
   Platform,
   ScrollView,
   StatusBar,
+  Image,
 } from "react-native";
 import { useAuth } from "../contexts/authContext";
+import { COLORS } from "../styles/styles";
+
 
 export default function SignUpScreen({ navigation }) {
   const { user, signUp } = useAuth();
@@ -80,9 +83,11 @@ export default function SignUpScreen({ navigation }) {
         >
           {/* BRAND / HEADER */}
           <View style={styles.brandContainer}>
-            <View style={styles.logoCircle}>
-              <Text style={styles.logoText}>M</Text>
-            </View>
+            <Image 
+              source={require("../assets/images/Logo.png")} 
+              style={styles.logo} 
+              resizeMode="contain"
+            />
 
             <Text style={styles.brandName}>Crea tu cuenta</Text>
             <Text style={styles.brandSubtitle}>Es rápido y gratis</Text>
@@ -291,18 +296,14 @@ export default function SignUpScreen({ navigation }) {
 }
 
 // Tokens de color compartidos con Login
-const BG = "#0f172a"; // fondo app
-const CARD_BG = "#1e2537"; // card
-const BORDER = "rgba(255,255,255,0.07)";
-const TEXT_MAIN = "#fff";
+const CARD_BG = "#1f1f1f"; // card
 const TEXT_DIM = "#94a3b8";
-const ACCENT = "#38bdf8";
 const ERROR = "#f87171";
 
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: BG,
+    backgroundColor: COLORS.background,
   },
   scroll: {
     flexGrow: 1,
@@ -329,13 +330,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   logoText: {
-    color: TEXT_MAIN,
+    color: COLORS.text,
     fontSize: 28,
     fontWeight: "600",
     letterSpacing: -0.5,
   },
   brandName: {
-    color: TEXT_MAIN,
+    color: COLORS.text,
     fontSize: 20,
     fontWeight: "600",
     letterSpacing: -0.4,
@@ -350,8 +351,6 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: CARD_BG,
     borderRadius: 24,
-    borderWidth: 1,
-    borderColor: BORDER,
     padding: 20,
 
     shadowColor: "#000",
@@ -373,9 +372,7 @@ const styles = StyleSheet.create({
   },
 
   inputContainer: {
-    backgroundColor: "rgba(15,23,42,0.6)",
-    borderWidth: 1,
-    borderColor: BORDER,
+    backgroundColor: COLORS.background,
     borderRadius: 14,
     flexDirection: "row",
     alignItems: "center",
@@ -399,7 +396,7 @@ const styles = StyleSheet.create({
 
   input: {
     flex: 1,
-    color: TEXT_MAIN,
+    color: COLORS.text,
     fontSize: 15,
     fontWeight: "500",
     paddingVertical: 0,
@@ -437,13 +434,13 @@ const styles = StyleSheet.create({
   },
 
   primaryBtn: {
-    backgroundColor: ACCENT,
+    backgroundColor: COLORS.primary,
     borderRadius: 16,
     height: 54,
     alignItems: "center",
     justifyContent: "center",
 
-    shadowColor: ACCENT,
+    shadowColor: COLORS.primary,
     shadowOpacity: 0.6,
     shadowRadius: 12,
     shadowOffset: { width: 0, height: 8 },
@@ -454,7 +451,7 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   primaryBtnText: {
-    color: BG,
+    color: COLORS.background,
     fontSize: 16,
     fontWeight: "600",
     letterSpacing: -0.3,
@@ -470,7 +467,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   loginCta: {
-    color: ACCENT,
+    color: COLORS.primary,
     fontSize: 14,
     fontWeight: "600",
   },
@@ -485,4 +482,10 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     textAlign: "center",
   },
+  logo: {
+    width: 60,
+    height: 60,
+    justifyContent: "center",
+    alignItems: "center",
+  }
 });
