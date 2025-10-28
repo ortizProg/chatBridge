@@ -41,7 +41,7 @@ export default function SignUpScreen({ navigation }) {
     pass1.trim().length > 0 &&
     pass2.trim().length > 0;
 
-  const submitted = false;
+  let submitted = false;
 
   const handleSubmit = async () => {
     
