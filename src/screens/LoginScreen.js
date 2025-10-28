@@ -11,12 +11,15 @@ import {
   StatusBar,
   Image,
 } from "react-native";
-import { useAuth } from "../contexts/authContext";
+import { Ionicons } from "@expo/vector-icons";
 
+import { useAuth } from "../contexts/authContext";
 import { COLORS } from '../styles/styles';
 
 export default function LoginScreen({navigation}) {
   const { user, signIn } = useAuth();
+
+  const submitted = false;
 
   useEffect(() => {
     if (user) {
@@ -34,20 +37,29 @@ export default function LoginScreen({navigation}) {
   const canSubmit = email.trim().length > 0 && password.trim().length > 0;
 
   const handleSubmit = async () => {
-    const newErrors = {};
-    if (!email.trim()) newErrors.email = "Ingresa tu correo";
-    if (!password.trim()) newErrors.password = "Ingresa tu contraseña";
-    setErrors(newErrors);
 
-    if (Object.keys(newErrors).length > 0) return;
+    if(submitted) return;
+
+    submitted = true;
 
     try {
-        await signIn(email, password);
-    } catch (err) {
-      setErrors({
-        ...newErrors,
-        global: err?.message || "Correo o contraseña incorrectos",
-      });
+      const newErrors = {};
+      if (!email.trim()) newErrors.email = "Ingresa tu correo";
+      if (!password.trim()) newErrors.password = "Ingresa tu contraseña";
+      setErrors(newErrors);
+  
+      if (Object.keys(newErrors).length > 0) return;
+  
+      try {
+          await signIn(email, password);
+      } catch (err) {
+        setErrors({
+          ...newErrors,
+          global: err?.message || "Correo o contraseña incorrectos",
+        });
+      }
+    } finally {
+      submitted = false;
     }
   };
 
@@ -86,14 +98,14 @@ export default function LoginScreen({navigation}) {
                 ]}
               >
                 {/* "icono" fake con solo texto */}
-                <Text
+                <Ionicons 
+                  name="mail-outline"
+                  color={COLORS.textSecondary || '#aaa'}
                   style={[
                     styles.leftIcon,
                     errors.email && styles.leftIconError,
                   ]}
-                >
-                  @
-                </Text>
+                />                
 
                 <TextInput
                   style={styles.input}
@@ -122,14 +134,14 @@ export default function LoginScreen({navigation}) {
                   errors.password && styles.inputErrorBorder,
                 ]}
               >
-                <Text
+                <Ionicons 
+                  name="lock-closed-outline"
+                  color={COLORS.textSecondary || '#aaa'}
                   style={[
                     styles.leftIcon,
                     errors.password && styles.leftIconError,
                   ]}
-                >
-                  *
-                </Text>
+                /> 
 
                 <TextInput
                   style={styles.input}
@@ -146,9 +158,24 @@ export default function LoginScreen({navigation}) {
                   style={styles.rightActionBtn}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
-                  <Text style={styles.rightActionText}>
-                    {passwordVisible ? "Ocultar" : "Ver"}
-                  </Text>
+                  {
+                    passwordVisible ?  
+                    <Ionicons 
+                      name="eye-outline"
+                      color={COLORS.textSecondary || '#aaa'}
+                      style={[
+                        styles.rightActionText,
+                      ]}
+                    /> 
+                    : 
+                    <Ionicons 
+                      name="eye-off-outline"
+                      color={COLORS.textSecondary || '#aaa'}
+                      style={[
+                        styles.rightActionText,
+                      ]}
+                    /> 
+                  }
                 </TouchableOpacity>
               </View>
 
@@ -327,7 +354,7 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   rightActionText: {
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: "500",
     color: TEXT_DIM,
   },

@@ -11,6 +11,8 @@ import {
   StatusBar,
   Image,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+
 import { useAuth } from "../contexts/authContext";
 import { COLORS } from "../styles/styles";
 
@@ -39,33 +41,42 @@ export default function SignUpScreen({ navigation }) {
     pass1.trim().length > 0 &&
     pass2.trim().length > 0;
 
+  const submitted = false;
+
   const handleSubmit = async () => {
-    const newErrors = {};
-
-    // validación simple
-    if (!email.trim()) newErrors.email = "Ingresa tu correo";
-    if (!pass1.trim()) newErrors.pass1 = "Ingresa una contraseña";
-    if (!pass2.trim()) newErrors.pass2 = "Confirma tu contraseña";
-
-    if (pass1.trim() && pass1.trim().length < 6) {
-      newErrors.pass1 = "Mínimo 6 caracteres";
-    }
-
-    if (pass1.trim() && pass2.trim() && pass1.trim() !== pass2.trim()) {
-      newErrors.pass2 = "Las contraseñas no coinciden";
-    }
-
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length > 0) return;
+    
+    if(submitted) return;
+    submitted = true;
 
     try {
-      await signUp?.(email.trim(), pass1.trim(), userName.trim());
-    } catch (err) {
-      setErrors({
-        ...newErrors,
-        global: err?.message || "No se pudo crear la cuenta",
-      });
+      const newErrors = {};
+  
+      if (!email.trim()) newErrors.email = "Ingresa tu correo";
+      if (!pass1.trim()) newErrors.pass1 = "Ingresa una contraseña";
+      if (!pass2.trim()) newErrors.pass2 = "Confirma tu contraseña";
+  
+      if (pass1.trim() && pass1.trim().length < 6) {
+        newErrors.pass1 = "Mínimo 6 caracteres";
+      }
+  
+      if (pass1.trim() && pass2.trim() && pass1.trim() !== pass2.trim()) {
+        newErrors.pass2 = "Las contraseñas no coinciden";
+      }
+  
+      setErrors(newErrors);
+  
+      if (Object.keys(newErrors).length > 0) return;
+  
+      try {
+        await signUp?.(email.trim(), pass1.trim(), userName.trim());
+      } catch (err) {
+        setErrors({
+          ...newErrors,
+          global: err?.message || "No se pudo crear la cuenta",
+        });
+      }
+    } finally {
+      submitted = false;
     }
   };
 
@@ -81,7 +92,6 @@ export default function SignUpScreen({ navigation }) {
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={styles.scroll}
         >
-          {/* BRAND / HEADER */}
           <View style={styles.brandContainer}>
             <Image 
               source={require("../assets/images/Logo.png")} 
@@ -93,10 +103,9 @@ export default function SignUpScreen({ navigation }) {
             <Text style={styles.brandSubtitle}>Es rápido y gratis</Text>
           </View>
 
-          {/* CARD */}
           <View style={styles.card}>
-             {/* USERNAME */}
             <View style={styles.fieldWrapper}>
+              {/* USERNAME */}
               <Text style={styles.label}>Nombre de usuario</Text>
 
               <View
@@ -105,15 +114,14 @@ export default function SignUpScreen({ navigation }) {
                   errors.userName && styles.inputErrorBorder,
                 ]}
               >
-                {/* pseudo-icono */}
-                <Text
+                <Ionicons 
+                  name="person-outline"
+                  color={COLORS.textSecondary || '#aaa'}
                   style={[
                     styles.leftIcon,
-                    errors.userName && styles.leftIconError,
+                    errors.email && styles.leftIconError,
                   ]}
-                >
-                  
-                </Text>
+                /> 
 
                 <TextInput
                   style={styles.input}
@@ -141,15 +149,14 @@ export default function SignUpScreen({ navigation }) {
                   errors.email && styles.inputErrorBorder,
                 ]}
               >
-                {/* pseudo-icono */}
-                <Text
+                <Ionicons 
+                  name="mail-outline"
+                  color={COLORS.textSecondary || '#aaa'}
                   style={[
                     styles.leftIcon,
                     errors.email && styles.leftIconError,
                   ]}
-                >
-                  @
-                </Text>
+                /> 
 
                 <TextInput
                   style={styles.input}
@@ -178,14 +185,14 @@ export default function SignUpScreen({ navigation }) {
                   errors.pass1 && styles.inputErrorBorder,
                 ]}
               >
-                <Text
+                <Ionicons 
+                  name="lock-closed-outline"
+                  color={COLORS.textSecondary || '#aaa'}
                   style={[
                     styles.leftIcon,
                     errors.pass1 && styles.leftIconError,
                   ]}
-                >
-                  *
-                </Text>
+                /> 
 
                 <TextInput
                   style={styles.input}
@@ -202,7 +209,24 @@ export default function SignUpScreen({ navigation }) {
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
                   <Text style={styles.rightActionText}>
-                    {showPass1 ? "Ocultar" : "Ver"}
+                    {
+                    showPass1 ? 
+                    <Ionicons 
+                      name="eye-outline"
+                      color={COLORS.textSecondary || '#aaa'}
+                      style={[
+                        styles.rightActionText,
+                      ]}
+                    /> 
+                    : 
+                    <Ionicons 
+                      name="eye-off-outline"
+                      color={COLORS.textSecondary || '#aaa'}
+                      style={[
+                        styles.rightActionText,
+                      ]}
+                    /> 
+                  }
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -222,14 +246,14 @@ export default function SignUpScreen({ navigation }) {
                   errors.pass2 && styles.inputErrorBorder,
                 ]}
               >
-                <Text
+                <Ionicons 
+                  name="lock-closed-outline"
+                  color={COLORS.textSecondary || '#aaa'}
                   style={[
                     styles.leftIcon,
                     errors.pass2 && styles.leftIconError,
                   ]}
-                >
-                  *
-                </Text>
+                /> 
 
                 <TextInput
                   style={styles.input}
@@ -245,9 +269,24 @@ export default function SignUpScreen({ navigation }) {
                   style={styles.rightActionBtn}
                   hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
-                  <Text style={styles.rightActionText}>
-                    {showPass2 ? "Ocultar" : "Ver"}
-                  </Text>
+                  {
+                    showPass2 ? 
+                    <Ionicons 
+                      name="eye-outline"
+                      color={COLORS.textSecondary || '#aaa'}
+                      style={[
+                        styles.rightActionText,
+                      ]}
+                    /> 
+                    : 
+                    <Ionicons 
+                      name="eye-off-outline"
+                      color={COLORS.textSecondary || '#aaa'}
+                      style={[
+                        styles.rightActionText,
+                      ]}
+                    /> 
+                  }
                 </TouchableOpacity>
               </View>
 
