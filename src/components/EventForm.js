@@ -6,13 +6,13 @@ import {
   TextInput, 
   TouchableOpacity, 
   ScrollView,
-  Platform, // Necesario para el date picker
+  Platform, 
 } from 'react-native';
 import React, { useState } from 'react';
 import { COLORS, GLOBAL } from '../styles/styles';
 import { Ionicons } from "@expo/vector-icons"; 
 
-// Componente Custom Input para evitar repetir estilos
+
 const CustomInput = ({ label, placeholder, isRequired = false, ...props }) => (
   <View style={styles.inputGroup}>
     <Text style={[styles.inputLabel, GLOBAL.text]}>
@@ -27,7 +27,7 @@ const CustomInput = ({ label, placeholder, isRequired = false, ...props }) => (
   </View>
 );
 
-// --- Pantalla Crear Evento ---
+
 export default function CreateEventScreen({ navigation }) {
   const [eventName, setEventName] = useState('');
   const [description, setDescription] = useState('');
@@ -46,7 +46,7 @@ export default function CreateEventScreen({ navigation }) {
     console.log('Creando evento con datos:', { eventName, description, address, dateTime, maxCapacity });
     
     // 3. Navegar o cerrar el modal
-    // navigation.goBack(); // O navegar a la lista de eventos
+    
   };
 
   return (
@@ -54,7 +54,7 @@ export default function CreateEventScreen({ navigation }) {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         
-        {/* --- Encabezado del Modal con Botón Cerrar (x) --- */}
+       
         <View style={styles.header}>
           <Text style={[styles.headerTitle, GLOBAL.text]}>Crear Evento</Text>
           <TouchableOpacity 
@@ -65,7 +65,7 @@ export default function CreateEventScreen({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        {/* --- Formulario --- */}
+
         <ScrollView 
           style={styles.formScroll}
           showsVerticalScrollIndicator={false}
@@ -88,7 +88,7 @@ export default function CreateEventScreen({ navigation }) {
             numberOfLines={4}
             value={description}
             onChangeText={setDescription}
-            style={styles.multilineInput} // Estilo para altura
+            style={styles.multilineInput}
           />
           
           <CustomInput 
@@ -99,8 +99,7 @@ export default function CreateEventScreen({ navigation }) {
             onChangeText={setAddress}
           />
 
-          {/* Campo de Fecha y Hora */}
-          {/* Nota: En una app real, aquí usarías un DatePicker nativo */}
+      
           <CustomInput 
             label="Fecha y hora"
             placeholder="__/__/__, __:__"
@@ -119,7 +118,7 @@ export default function CreateEventScreen({ navigation }) {
           
         </ScrollView>
         
-        {/* --- Botón de Crear Evento --- */}
+ 
         <TouchableOpacity style={styles.createButton} onPress={handleCreateEvent}>
           <Text style={styles.createButtonText}>Crear evento</Text>
         </TouchableOpacity>
@@ -129,7 +128,7 @@ export default function CreateEventScreen({ navigation }) {
   );
 }
 
-// --- Estilos de la Pantalla ---
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -138,7 +137,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingBottom: 20, // Padding inferior para el botón
+    paddingBottom: 20, 
     backgroundColor: COLORS.background,
   },
   header: {
@@ -147,7 +146,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 15,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.surface || '#333', // Línea separadora
+    borderBottomColor: COLORS.surface || '#333', 
   },
   headerTitle: {
     fontSize: 20,
@@ -158,13 +157,13 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   
-  // --- Estilos del Formulario ---
+
   formScroll: {
     flex: 1,
     marginTop: 10,
   },
   scrollContent: {
-    paddingBottom: 20, // Espacio extra al final de la lista
+    paddingBottom: 20, 
   },
   inputGroup: {
     marginBottom: 20,
@@ -176,7 +175,7 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
   },
   input: {
-    // Estilo general del TextInput
+
     backgroundColor: COLORS.surface || '#222', 
     borderRadius: 8,
     paddingHorizontal: 15,
@@ -185,21 +184,21 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
   multilineInput: {
-    height: Platform.OS === 'ios' ? 100 : 100, // Altura para multilínea
+    height: Platform.OS === 'ios' ? 100 : 100, 
     textAlignVertical: 'top',
     paddingTop: 12,
   },
 
-  // --- Estilo del Botón de Acción ---
+
   createButton: {
-    backgroundColor: COLORS.primary, // Color principal para el botón de acción
+    backgroundColor: COLORS.primary, 
     borderRadius: 8,
     paddingVertical: 15,
     alignItems: 'center',
-    marginTop: 10, // Separación del formulario
+    marginTop: 10, 
   },
   createButtonText: {
-    color: COLORS.background, // Color de texto que contraste con COLORS.primary
+    color: COLORS.background, 
     fontSize: 18,
     fontWeight: 'bold',
   },

@@ -10,6 +10,8 @@ import EventsScreen from "../screens/EventsScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import DiscussionDetailScreen from "../screens/DiscussionDetailScreen";
 import TabBar from "../components/TabBar";
+import EventDetailScreen from "../screens/EventDetailScreen";
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -36,6 +38,10 @@ export default function AppNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="MainTabs" component={Tabs} />
         <Stack.Screen name="DiscussionDetail" component={DiscussionDetailScreen} />
+
+        {/* 🚨 RUTA AGREGADA PARA EL DETALLE DEL EVENTO */}
+        <Stack.Screen name="EventDetail" component={EventDetailScreen} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
