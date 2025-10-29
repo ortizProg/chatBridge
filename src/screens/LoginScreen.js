@@ -44,7 +44,11 @@ export default function LoginScreen({navigation}) {
 
     try {
       const newErrors = {};
-      if (!email.trim()) newErrors.email = "Ingresa tu correo";
+      if (!email.trim()) {
+        newErrors.email = "Ingresa tu correo"
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+        newErrors.email = "Correo invalido"
+      }
       if (!password.trim()) newErrors.password = "Ingresa tu contraseña";
       setErrors(newErrors);
   
