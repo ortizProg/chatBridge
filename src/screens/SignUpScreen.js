@@ -67,14 +67,8 @@ export default function SignUpScreen({ navigation }) {
   
       if (Object.keys(newErrors).length > 0) return;
   
-      try {
-        await signUp?.(email.trim(), pass1.trim(), userName.trim());
-      } catch (err) {
-        setErrors({
-          ...newErrors,
-          global: err?.message || "No se pudo crear la cuenta",
-        });
-      }
+      await signUp?.(email.trim(), pass1.trim(), userName.trim());
+      
     } finally {
       submitted = false;
     }
