@@ -51,7 +51,11 @@ export default function SignUpScreen({ navigation }) {
     try {
       const newErrors = {};
   
-      if (!email.trim()) newErrors.email = "Ingresa tu correo";
+      if (!email.trim()) {
+        newErrors.email = "Ingresa tu correo"
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+        newErrors.email = "Correo invalido"
+      }
       if (!pass1.trim()) newErrors.pass1 = "Ingresa una contraseña";
       if (!pass2.trim()) newErrors.pass2 = "Confirma tu contraseña";
   
@@ -67,14 +71,8 @@ export default function SignUpScreen({ navigation }) {
   
       if (Object.keys(newErrors).length > 0) return;
   
-      try {
-        await signUp?.(email.trim(), pass1.trim(), userName.trim());
-      } catch (err) {
-        setErrors({
-          ...newErrors,
-          global: err?.message || "No se pudo crear la cuenta",
-        });
-      }
+      await signUp?.(email.trim(), pass1.trim(), userName.trim());
+
     } finally {
       submitted = false;
     }

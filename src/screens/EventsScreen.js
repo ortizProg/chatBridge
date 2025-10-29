@@ -66,7 +66,6 @@ export default function EventsScreen({ navigation }) {
 
   const handleSearch = () => {
     // Aquí iría la lógica para filtrar la lista de eventos
-    console.log('Buscando eventos por:', searchText);
   };
 
   return (
