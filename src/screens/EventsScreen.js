@@ -8,18 +8,22 @@ import {
   FlatList
 } from 'react-native';
 import React, { useState } from 'react';
+// 🚨 Asegúrate de que COLORS y GLOBAL estén definidos correctamente
 import { COLORS, GLOBAL } from '../styles/styles';
 import { Ionicons } from "@expo/vector-icons";
 // 🚨 Asegúrate de que esta ruta sea correcta
 import EventCard from '../components/EventCard';
+// 1. IMPORTAR useAuth: Necesitamos saber si hay un usuario logueado
+import { useAuth } from '../context/AuthContext';
 
-// --- Datos de ejemplo ---
+
+// --- Datos de ejemplo (Actualizados con nuevas URLs) ---
 const DUMMY_EVENTS = [
   {
     id: '1',
     title: 'Temas de estudio',
     location: 'Río otun, Pereira, Risaralda',
-    date: '25/09/2025, 3:00pm',
+    date: '25/09/202ES, 3:00pm',
     attendees: 10,
     likes: 415,
     // 🚨 RUTA DE IMAGEN PARA EL FONDO DE LA TARJETA
@@ -29,7 +33,7 @@ const DUMMY_EVENTS = [
     id: '2',
     title: 'Charla de Finanzas',
     location: 'Campus principal, Auditorio A',
-    date: '25/09/2025, 3:00pm',
+    date: '25/09/202ES, 3:00pm',
     attendees: 30,
     likes: 14,
     // 🚨 RUTA DE IMAGEN PARA EL FONDO DE LA TARJETA
@@ -39,7 +43,7 @@ const DUMMY_EVENTS = [
     id: '3',
     title: 'Noche de Parranda',
     location: 'Campus principal, Edificio C',
-    date: '30/09/2025, 8:00pm',
+    date: '30/09/202ES, 8:00pm',
     attendees: 55,
     likes: 98,
     // 🚨 RUTA DE IMAGEN PARA EL FONDO DE LA TARJETA
@@ -49,7 +53,7 @@ const DUMMY_EVENTS = [
     id: '4',
     title: 'Maratón de Código',
     location: 'Salón de Sistemas, 4to piso',
-    date: '10/10/2025, 9:00am',
+    date: '10/10/202ES, 9:00am',
     attendees: 22,
     likes: 31,
     // 🚨 RUTA DE IMAGEN PARA EL FONDO DE LA TARJETA
@@ -63,9 +67,21 @@ export default function EventsScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('populares');
   const [searchText, setSearchText] = useState('');
   const [displayedEvents, setDisplayedEvents] = useState(DUMMY_EVENTS);
+  
+  // USAR useAuth: Obtenemos el estado del usuario
+  const { user } = useAuth(); 
+
+  // DEFINIR la lógica de redirección
+  const handleProfilePress = () => {
+    if (user) { // Si hay un usuario (está logueado)
+      navigation.navigate("Profile"); // Navegar al perfil
+    } else { // Si NO hay un usuario
+      navigation.navigate("Login"); // Navegar al login
+    }
+  };
 
 
-  // 🚨 CORRECCIÓN: Función para actualizar la lista filtrada
+  // Función para actualizar la lista filtrada
   const handleSearch = () => {
     const lowerCaseSearch = searchText.toLowerCase();
 
@@ -79,7 +95,7 @@ export default function EventsScreen({ navigation }) {
     console.log('Buscando eventos por:', searchText);
   };
 
-  // 🚨 NUEVA FUNCIÓN: Obtiene los eventos basándose en la pestaña y la búsqueda
+  // Obtiene los eventos basándose en la pestaña y la búsqueda
   const getEventsForTab = () => {
     // 1. Obtener la lista base (ya filtrada por búsqueda)
     const listToFilter = displayedEvents;
@@ -105,57 +121,60 @@ export default function EventsScreen({ navigation }) {
         <View style={styles.header}>
           <Text style={[styles.headerTitle, GLOBAL.text]}>Eventos</Text>
 
-         
+          
           <View style={styles.headerIcons}>
-            <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
+            <TouchableOpacity >
               <Ionicons name="notifications-outline" size={24} color={COLORS.primary} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('Profile')} style={styles.profileIcon}>
-             
+            
+            <TouchableOpacity 
+              onPress={handleProfilePress} 
+              style={styles.profileIcon}
+            >
+              
               <Ionicons name="person-circle-outline" size={28} color={COLORS.accent || COLORS.primary} />
             </TouchableOpacity>
           </View>
         </View>
 
-       
-        <View style={styles.searchContainer}>
-          <TextInput
-            placeholder="Buscar eventos..."
-            placeholderTextColor={COLORS.textSecondary || '#888'}
-            style={[styles.searchInput, GLOBAL.text]}
-            value={searchText}
-            
-            onChangeText={(text) => {
-              setSearchText(text);
-              
-            }}
-            onSubmitEditing={handleSearch}
-          />
+        {/* Contenedor de Búsqueda y Pestañas fuera del FlatList */}
+        <View>
+          <View style={styles.searchContainer}>
+            <TextInput
+              placeholder="Buscar eventos..."
+              placeholderTextColor={COLORS.textSecondary || '#888'}
+              style={[styles.searchInput, GLOBAL.text]}
+              value={searchText}
+              onChangeText={setSearchText} // Usar directamente el setter
+              onSubmitEditing={handleSearch}
+              // Asegurarse de que el TextInput no tenga autoFocus ni esté siempre enfocado.
+            />
+          
+            <TouchableOpacity
+              style={styles.searchButton}
+              onPress={handleSearch}
+            >
+              <Ionicons name="search" size={20} color={COLORS.primary} />
+            </TouchableOpacity>
+          </View>
 
-        
-          <TouchableOpacity
-            style={styles.searchButton}
-            onPress={handleSearch}
-          >
-            <Ionicons name="search" size={20} color={COLORS.primary} />
-          </TouchableOpacity>
+          
+          <View style={styles.tabsContainer}>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'populares' && styles.tabActive]}
+              onPress={() => setActiveTab('populares')}>
+              <Text style={[styles.tabText, GLOBAL.text]}>Populares</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.tab, activeTab === 'mis eventos' && styles.tabActive]}
+              onPress={() => setActiveTab('mis eventos')}>
+              <Text style={[styles.tabText, GLOBAL.text]}>Mis eventos</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
-        
-        <View style={styles.tabsContainer}>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'populares' && styles.tabActive]}
-            onPress={() => setActiveTab('populares')}>
-            <Text style={[styles.tabText, GLOBAL.text]}>Populares</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'mis eventos' && styles.tabActive]}
-            onPress={() => setActiveTab('mis eventos')}>
-            <Text style={[styles.tabText, GLOBAL.text]}>Mis eventos</Text>
-          </TouchableOpacity>
-        </View>
 
-        
+        {/* FlatList para los resultados */}
         <FlatList
           data={getEventsForTab()}
           keyExtractor={(item) => item.id}
@@ -166,6 +185,13 @@ export default function EventsScreen({ navigation }) {
             />
           )}
           showsVerticalScrollIndicator={false}
+          style={styles.list}
+          // Agregar un Empty Component si no hay eventos
+          ListEmptyComponent={() => (
+            <View style={styles.emptyContainer}>
+              <Text style={[styles.emptyText, GLOBAL.text]}>No se encontraron eventos.</Text>
+            </View>
+          )}
         />
       </View>
     </SafeAreaView>
@@ -244,4 +270,19 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontSize: 16,
   },
+  list: {
+    // Asegurar que FlatList ocupe el espacio restante
+    flex: 1, 
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  emptyText: {
+    fontSize: 18,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+  }
 });

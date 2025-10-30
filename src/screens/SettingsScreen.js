@@ -1,22 +1,50 @@
-import { StyleSheet, Text, View } from 'react-native';
-import React from 'react';
-import { COLORS, GLOBAL } from '../styles/styles';
+import { StyleSheet, Text, View, FlatList } from 'react-native';
 
-export default function SettingsScreen() {
+import { COLORS, GLOBAL } from '../styles/styles';
+import MenuItem from '../components/MenuItem';
+import { useAuth } from '../context/AuthContext';
+
+export default function SettingsScreen({navigation}) {
+
+  const { user, logout } = useAuth();
+
+  const options = [];
+  
+  if(user) {
+    options.push(
+      {
+        id: 1,
+        text: 'Cerrar sesión',
+        icon: 'exit-outline',
+        onPress: async () => {
+          const successLogout = await logout();
+          if(!successLogout) return;
+          navigation?.navigate('Login')
+        }
+      }
+    )
+  }
+
+
+
   return (
     <View style={styles.container}>
-      <Text style={[styles.text, GLOBAL.text]}>Próximamente configuración</Text>
+      <FlatList
+        data={options}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <MenuItem item={item} />}
+      >
+      </FlatList>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { 
-    flex: 1, 
-    justifyContent: "center", 
-    alignItems: "center", 
+    flex: 1,
     backgroundColor: COLORS.background,
     paddingHorizontal: 16,
+    paddingTop: 40
   },
   text: { 
     fontSize: 18, 
