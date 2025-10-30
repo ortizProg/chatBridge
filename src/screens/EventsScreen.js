@@ -93,6 +93,7 @@ export default function EventsScreen({ navigation }) {
 
     setDisplayedEvents(allFiltered);
     console.log('Buscando eventos por:', searchText);
+    // Aquí iría la lógica para filtrar la lista de eventos
   };
 
   // Obtiene los eventos basándose en la pestaña y la búsqueda

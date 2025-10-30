@@ -34,7 +34,6 @@ export const PostProvider = ({ children }) => {
       setPosts(postsData);
       setLoading(false);
     }, (error) => {
-      console.error('Error al obtener posts:', error);
       Alert.alert('Error', 'No se pudieron cargar las publicaciones');
       setLoading(false);
     });
@@ -74,7 +73,6 @@ export const PostProvider = ({ children }) => {
       Alert.alert('¡Éxito!', 'Publicación creada correctamente');
       return true;
     } catch (error) {
-      console.error('Error al crear post:', error);
       Alert.alert('Error', 'No se pudo crear la publicación');
       return false;
     }
@@ -87,7 +85,6 @@ export const PostProvider = ({ children }) => {
         [`stats.${statType}`]: increment(1)
       });
     } catch (error) {
-      console.error('Error al actualizar stats:', error);
     }
   };
 
@@ -96,7 +93,6 @@ export const PostProvider = ({ children }) => {
       await deleteDoc(doc(db, 'posts', postId));
       Alert.alert('Éxito', 'Publicación eliminada');
     } catch (error) {
-      console.error('Error al eliminar post:', error);
       Alert.alert('Error', 'No se pudo eliminar la publicación');
     }
   };

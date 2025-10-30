@@ -44,20 +44,18 @@ export default function LoginScreen({navigation}) {
 
     try {
       const newErrors = {};
-      if (!email.trim()) newErrors.email = "Ingresa tu correo";
+      if (!email.trim()) {
+        newErrors.email = "Ingresa tu correo"
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+        newErrors.email = "Correo invalido"
+      }
       if (!password.trim()) newErrors.password = "Ingresa tu contraseña";
       setErrors(newErrors);
   
       if (Object.keys(newErrors).length > 0) return;
   
-      try {
-          await signIn(email, password);
-      } catch (err) {
-        setErrors({
-          ...newErrors,
-          global: err?.message || "Correo o contraseña incorrectos",
-        });
-      }
+      await signIn(email, password);
+    
     } finally {
       submitted = false;
     }
@@ -207,25 +205,6 @@ export default function LoginScreen({navigation}) {
               <Text style={styles.loginBtnText}>Ingresar</Text>
             </TouchableOpacity>
 
-            {/* Divider */}
-            {/* <View style={styles.dividerRow}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>o continúa con</Text>
-              <View style={styles.dividerLine} />
-            </View> */}
-
-            {/* Botones sociales "fake" sin SDKs */}
-            {/* <View style={styles.socialRow}>
-              <TouchableOpacity style={styles.socialBtn}>
-                <Text style={styles.socialBtnIcon}>f</Text>
-                <Text style={styles.socialText}>Facebook</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.socialBtn}>
-                <Text style={styles.socialBtnIcon}>{`{}`}</Text>
-                <Text style={styles.socialText}>Github</Text>
-              </TouchableOpacity>
-            </View> */}
           </View>
 
           {/* Register CTA */}

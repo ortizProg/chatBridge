@@ -25,38 +25,32 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const signIn = async (email, password) => {
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await signInWithEmailAndPassword(auth, email, password).then(userCredential => {
       setUser(userCredential.user);
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Error al iniciar sesión', error.message);
-    }
+    }).catch(error => {
+      Alert.alert('Error al iniciar sesión', 'Las credenciales son invalidas');
+    });
   };
 
   const signUp = async (email, password, userName) => {
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      await setDoc(doc(db, "users", userCredential.user.uid), {
-        userName,
-        email,
-        createdAt: new Date().toISOString(),
-      });
-      setUser(userCredential.user);
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Error al registrarse', error.message);
-    }
+      createUserWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
+        await setDoc(doc(db, "users", userCredential.user.uid), {
+          userName,
+          email,
+          createdAt: new Date().toISOString(),
+        });
+        setUser(userCredential.user);
+      }).catch(error => {
+        Alert.alert('Error al registrarse', 'No fue posible realizar su registro, posiblemente este correo ya se encuentre en uso');
+      })
   };
 
   const logout = async () => {
-    try {
-      await signOut(auth);
+    await signOut(auth).then(() => {
       setUser(null);
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Error al cerrar sesión', error.message);
-    }
+    }).catch(err => {
+      Alert.alert('Error al cerrar sesión');
+    });
   };
 
   const value = useMemo(

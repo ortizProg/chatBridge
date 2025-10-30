@@ -25,10 +25,8 @@ export default function ProfileScreen({ navigation }) {
         if (docSnap.exists()) {
           setProfile(docSnap.data());
         } else {
-          console.log("No se encontró el perfil del usuario");
         }
       } catch (error) {
-        console.error("Error al cargar perfil:", error);
       }
     };
     if (user?.uid) fetchProfile();
