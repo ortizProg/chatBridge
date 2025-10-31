@@ -11,10 +11,10 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, GLOBAL } from '../styles/styles'; 
 
-// Componente para mostrar un asistente
+
 const AttendeeItem = ({ name }) => (
   <View style={styles.attendeeItem}>
-    {/* Avatar de ejemplo */}
+   
     <View style={styles.avatarPlaceholder}>
       <Text style={styles.avatarText}>{name[0]}</Text>
     </View>
@@ -22,7 +22,7 @@ const AttendeeItem = ({ name }) => (
   </View>
 );
 
-// Componente principal de la pantalla de detalle
+
 export default function EventDetailScreen({ route, navigation }) {
   // Obtenemos los datos del evento pasados desde EventsScreen
   const { event } = route.params; 
@@ -33,37 +33,36 @@ export default function EventDetailScreen({ route, navigation }) {
     { id: 'u1', name: 'Juan Perez' },
     { id: 'u2', name: 'Maria Lopez' },
     { id: 'u3', name: 'Pedro García' },
-    // Más asistentes simulados
+
   ]);
   
-  // Estado para los likes/interacciones
+
   const [likesCount, setLikesCount] = useState(event.likes);
 
-  // Lógica para asistir/cancelar
+
   const handleToggleAttendance = () => {
     setIsAttending(prev => !prev);
-    // Lógica para actualizar en Firestore aquí
+
   };
 
-  // Simular la funcionalidad del botón de mapa/ubicación
+  // Simular la funcionalidad del boton de mapa
   const handleMapPress = () => {
     console.log(`Abriendo mapa para la ubicación: ${event.location}`);
-    // En una app real: Linking.openURL('geo:0,0?q=' + event.location);
+   
   };
   
   const handleLikePress = () => {
     setLikesCount(prev => prev + (isLiked ? -1 : 1));
-    // Lógica de like en el backend
     setIsLiked(prev => !prev);
   }
   
-  const [isLiked, setIsLiked] = useState(false); // Simulación de estado de like
+  const [isLiked, setIsLiked] = useState(false);
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
         
-        {/* --- Imagen de Encabezado y Botón de Retroceso --- */}
+      
         <ImageBackground source={{ uri: event.imageUrl }} style={styles.imageHeader}>
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
             <Ionicons name="arrow-back" size={24} color={COLORS.background} />
@@ -71,7 +70,7 @@ export default function EventDetailScreen({ route, navigation }) {
         </ImageBackground>
         
         <View style={styles.contentContainer}>
-          {/* --- Título y Alertas (Campana) --- */}
+       
           <View style={styles.titleContainer}>
             <Text style={[styles.title, GLOBAL.text]}>{event.title}</Text>
             <TouchableOpacity style={styles.alertButton}>
@@ -79,7 +78,7 @@ export default function EventDetailScreen({ route, navigation }) {
             </TouchableOpacity>
           </View>
 
-          {/* --- Información Básica (Ubicación y Fecha) --- */}
+        
           <View style={styles.infoContainer}>
             <Ionicons name="pin" size={18} color={COLORS.textSecondary} />
             <Text style={[styles.infoText, GLOBAL.textSecondary]}>{event.location}</Text>
@@ -89,22 +88,20 @@ export default function EventDetailScreen({ route, navigation }) {
             <Text style={[styles.infoText, GLOBAL.textSecondary]}>{event.date}</Text>
           </View>
           
-          {/* --- Descripción --- */}
+        
           <Text style={[styles.sectionTitle, GLOBAL.text]}>Descripción</Text>
           <Text style={[styles.description, GLOBAL.text]}>
             En este espacio recreativo nos reuniremos al sobre la piedras del río para tomar clases de inglés y divertirnos un rato.
             Esta descripción es un poco más larga para mostrar cómo se ve el texto. Podríamos añadir más detalles sobre lo que se necesita llevar o los objetivos del encuentro.
           </Text>
           
-          {/* --- Asistentes y Likes (Diseño del Wireframe) --- */}
+
           <View style={styles.interactionBar}>
-            {/* Asistentes (Personas) */}
             <View style={styles.iconCount}>
               <Ionicons name="people" size={20} color={COLORS.text} />
               <Text style={[styles.countText, GLOBAL.text]}>{attendeesList.length}</Text>
             </View>
             
-            {/* Likes (Corazón) */}
             <TouchableOpacity onPress={handleLikePress} style={styles.iconCount}>
               <Ionicons 
                 name={isLiked ? "heart" : "heart-outline"} 
@@ -115,7 +112,6 @@ export default function EventDetailScreen({ route, navigation }) {
             </TouchableOpacity>
           </View>
 
-          {/* --- Botón de Acción (Asistir/Cancelar) --- */}
           <TouchableOpacity 
             style={[styles.actionButton, isAttending && styles.cancelButton]} 
             onPress={handleToggleAttendance}
@@ -125,7 +121,6 @@ export default function EventDetailScreen({ route, navigation }) {
             </Text>
           </TouchableOpacity>
           
-          {/* --- Lista de Asistentes --- */}
           <Text style={[styles.sectionTitle, styles.attendeesSection, GLOBAL.text]}>Asistentes ({attendeesList.length})</Text>
           <View style={styles.attendeesContainer}>
             {attendeesList.map(attendee => (
@@ -133,7 +128,6 @@ export default function EventDetailScreen({ route, navigation }) {
             ))}
           </View>
           
-          {/* --- Botón de Ubicación del Mapa --- */}
           <TouchableOpacity style={styles.mapButton} onPress={handleMapPress}>
             <Ionicons name="map" size={24} color={COLORS.background} />
           </TouchableOpacity>
@@ -155,7 +149,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
   },
   
-  // --- Encabezado de Imagen ---
   imageHeader: {
     width: '100%',
     height: 250, 
@@ -170,14 +163,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 10,
-    marginLeft: -5, // Ajuste visual
+    marginLeft: -5, 
   },
   
   contentContainer: {
     padding: 16,
   },
   
-  // --- Título ---
+
   titleContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -188,13 +181,13 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: COLORS.primary,
-    flexShrink: 1, // Permite que el texto se encoja para dejar espacio al botón
+    flexShrink: 1, 
   },
   alertButton: {
     padding: 5,
   },
   
-  // --- Info ---
+
   infoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -206,7 +199,7 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
   },
   
-  // --- Descripción ---
+
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -221,7 +214,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   
-  // --- Barra de Interacción (Likes/Asistentes) ---
+
   interactionBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -244,7 +237,7 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
 
-  // --- Botón de Acción ---
+
   actionButton: {
     backgroundColor: COLORS.accent, 
     borderRadius: 10,
@@ -264,12 +257,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   
-  // --- Lista de Asistentes ---
+
   attendeesSection: {
     marginTop: 10,
   },
   attendeesContainer: {
-    // Estilos para la lista de asistentes si fuera horizontal o grid
+
   },
   attendeeItem: {
     flexDirection: 'row',
@@ -296,7 +289,6 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
 
-  // --- Botón Flotante de Mapa ---
   mapButton: {
     position: 'absolute',
     bottom: 20,

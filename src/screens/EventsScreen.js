@@ -8,16 +8,13 @@ import {
   FlatList
 } from 'react-native';
 import React, { useState } from 'react';
-// 🚨 Asegúrate de que COLORS y GLOBAL estén definidos correctamente
 import { COLORS, GLOBAL } from '../styles/styles';
 import { Ionicons } from "@expo/vector-icons";
-// 🚨 Asegúrate de que esta ruta sea correcta
 import EventCard from '../components/EventCard';
-// 1. IMPORTAR useAuth: Necesitamos saber si hay un usuario logueado
 import { useAuth } from '../context/AuthContext';
 
 
-// --- Datos de ejemplo (Actualizados con nuevas URLs) ---
+
 const DUMMY_EVENTS = [
   {
     id: '1',
@@ -26,7 +23,6 @@ const DUMMY_EVENTS = [
     date: '25/09/202ES, 3:00pm',
     attendees: 10,
     likes: 415,
-    // 🚨 RUTA DE IMAGEN PARA EL FONDO DE LA TARJETA
     imageUrl: 'https://imgs.search.brave.com/_oIRzfMh3rnSoCeKht2wosOReyaWfeYhgD_mJh_Lw3s/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9maWxl/cy53aW5zcG9ydHMu/Y28vYXNzZXRzL3B1/YmxpYy9zdHlsZXMv/bGFyZ2UvcHVibGlj/LzIwMjQtMTAvZGF5/cm8lMjBlbiUyMHdp/bi5qcGcud2VicD9p/dG9rPTJzcl82MUdC',
   },
   {
@@ -36,7 +32,6 @@ const DUMMY_EVENTS = [
     date: '25/09/202ES, 3:00pm',
     attendees: 30,
     likes: 14,
-    // 🚨 RUTA DE IMAGEN PARA EL FONDO DE LA TARJETA
     imageUrl: 'https://imgs.search.brave.com/_oIRzfMh3rnSoCeKht2wosOReyaWfeYhgD_mJh_Lw3s/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9maWxl/cy53aW5zcG9ydHMu/Y28vYXNzZXRzL3B1/YmxpYy9zdHlsZXMv/bGFyZ2UvcHVibGlj/LzIwMjQtMTAvZGF5/cm8lMjBlbiUyMHdp/bi5qcGcud2VicD9p/dG9rPTJzcl82MUdC',
   },
   {
@@ -46,7 +41,6 @@ const DUMMY_EVENTS = [
     date: '30/09/202ES, 8:00pm',
     attendees: 55,
     likes: 98,
-    // 🚨 RUTA DE IMAGEN PARA EL FONDO DE LA TARJETA
     imageUrl: 'https://imgs.search.brave.com/_oIRzfMh3rnSoCeKht2wosOReyaWfeYhgD_mJh_Lw3s/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9maWxl/cy53aW5zcG9ydHMu/Y28vYXNzZXRzL3B1/YmxpYy9zdHlsZXMv/bGFyZ2UvcHVibGlj/LzIwMjQtMTAvZGF5/cm8lMjBlbiUyMHdp/bi5qcGcud2VicD9p/dG9rPTJzcl82MUdC',
   },
   {
@@ -56,7 +50,6 @@ const DUMMY_EVENTS = [
     date: '10/10/202ES, 9:00am',
     attendees: 22,
     likes: 31,
-    // 🚨 RUTA DE IMAGEN PARA EL FONDO DE LA TARJETA
     imageUrl: 'https://imgs.search.brave.com/_oIRzfMh3rnSoCeKht2wosOReyaWfeYhgD_mJh_Lw3s/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9maWxl/cy53aW5zcG9ydHMu/Y28vYXNzZXRzL3B1/YmxpYy9zdHlsZXMv/bGFyZ2UvcHVibGlj/LzIwMjQtMTAvZGF5/cm8lMjBlbiUyMHdp/bi5qcGcud2VicD9p/dG9rPTJzcl82MUdC',
   },
 ];
@@ -68,7 +61,7 @@ export default function EventsScreen({ navigation }) {
   const [searchText, setSearchText] = useState('');
   const [displayedEvents, setDisplayedEvents] = useState(DUMMY_EVENTS);
   
-  // USAR useAuth: Obtenemos el estado del usuario
+
   const { user } = useAuth(); 
 
   // DEFINIR la lógica de redirección
@@ -81,11 +74,11 @@ export default function EventsScreen({ navigation }) {
   };
 
 
-  // Función para actualizar la lista filtrada
+  // Funcion para actualizar la lista filtrada
   const handleSearch = () => {
     const lowerCaseSearch = searchText.toLowerCase();
 
-    // Filtramos DUMMY_EVENTS y luego aplicamos la lógica de pestañas
+    // Filtramos DUMMY_EVENTS y luego aplicamos la logica de pestañas
     const allFiltered = DUMMY_EVENTS.filter(event =>
       event.title.toLowerCase().includes(lowerCaseSearch) ||
       event.location.toLowerCase().includes(lowerCaseSearch)
@@ -93,24 +86,24 @@ export default function EventsScreen({ navigation }) {
 
     setDisplayedEvents(allFiltered);
     console.log('Buscando eventos por:', searchText);
-    // Aquí iría la lógica para filtrar la lista de eventos
+    // Aqui iria la logica para filtrar la lista de eventos
   };
 
-  // Obtiene los eventos basándose en la pestaña y la búsqueda
+  // Obtiene los eventos basandose en la pestaña y la busqueda
   const getEventsForTab = () => {
-    // 1. Obtener la lista base (ya filtrada por búsqueda)
+    // 1. Obtener la lista base (ya filtrada por busqueda)
     const listToFilter = displayedEvents;
 
     // 2. Aplicar el filtro de la pestaña
     if (activeTab === 'populares') {
-      // Si es populares, simplemente muestra la lista filtrada por la búsqueda
+      // Si es populares, simplemente muestra la lista filtrada por la busqueda
       return listToFilter;
     }
     if (activeTab === 'mis eventos') {
-      // SIMULACIÓN: Mostrar solo el evento con id '1' para "Mis eventos"
+      
       return listToFilter.filter(event => event.id === '1');
     }
-    return listToFilter; // Fallback
+    return listToFilter; 
   };
 
 
@@ -138,7 +131,7 @@ export default function EventsScreen({ navigation }) {
           </View>
         </View>
 
-        {/* Contenedor de Búsqueda y Pestañas fuera del FlatList */}
+       
         <View>
           <View style={styles.searchContainer}>
             <TextInput
@@ -148,7 +141,7 @@ export default function EventsScreen({ navigation }) {
               value={searchText}
               onChangeText={setSearchText} // Usar directamente el setter
               onSubmitEditing={handleSearch}
-              // Asegurarse de que el TextInput no tenga autoFocus ni esté siempre enfocado.
+              // Asegurarse de que el TextInput no tenga autoFocus ni este siempre enfocado.
             />
           
             <TouchableOpacity
@@ -175,7 +168,7 @@ export default function EventsScreen({ navigation }) {
         </View>
 
 
-        {/* FlatList para los resultados */}
+      
         <FlatList
           data={getEventsForTab()}
           keyExtractor={(item) => item.id}
@@ -187,7 +180,7 @@ export default function EventsScreen({ navigation }) {
           )}
           showsVerticalScrollIndicator={false}
           style={styles.list}
-          // Agregar un Empty Component si no hay eventos
+          
           ListEmptyComponent={() => (
             <View style={styles.emptyContainer}>
               <Text style={[styles.emptyText, GLOBAL.text]}>No se encontraron eventos.</Text>
@@ -199,7 +192,7 @@ export default function EventsScreen({ navigation }) {
   );
 }
 
-// --- Estilos Específicos de la Pantalla ---
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -210,7 +203,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     paddingHorizontal: 16,
   },
-  // ESTILO HEADER MODIFICADO
+
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -222,7 +215,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: COLORS.primary,
   },
-  // NUEVOS ESTILOS PARA EL GRUPO DE ÍCONOS
+  
   headerIcons: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -231,7 +224,7 @@ const styles = StyleSheet.create({
   profileIcon: {
     marginLeft: 8,
   },
-  // FIN ESTILOS HEADER
+
 
   searchContainer: {
     flexDirection: 'row',
