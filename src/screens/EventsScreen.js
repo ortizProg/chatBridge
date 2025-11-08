@@ -5,117 +5,99 @@ import {
   SafeAreaView,
   TextInput,
   TouchableOpacity,
-  FlatList
+  FlatList,
+  ActivityIndicator // Importado para el estado de carga
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // Agregamos useEffect
 import { COLORS, GLOBAL } from '../styles/styles';
 import { Ionicons } from "@expo/vector-icons";
 import EventCard from '../components/EventCard';
 import { useAuth } from '../context/AuthContext';
+// 🚨 1. Importar useEvents
+import { useEvents } from '../context/EventContext';
 
 
-
-const DUMMY_EVENTS = [
-  {
-    id: '1',
-    title: 'Temas de estudio',
-    location: 'Río otun, Pereira, Risaralda',
-    date: '25/09/202ES, 3:00pm',
-    attendees: 10,
-    likes: 415,
-    imageUrl: 'https://imgs.search.brave.com/_oIRzfMh3rnSoCeKht2wosOReyaWfeYhgD_mJh_Lw3s/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9maWxl/cy53aW5zcG9ydHMu/Y28vYXNzZXRzL3B1/YmxpYy9zdHlsZXMv/bGFyZ2UvcHVibGlj/LzIwMjQtMTAvZGF5/cm8lMjBlbiUyMHdp/bi5qcGcud2VicD9p/dG9rPTJzcl82MUdC',
-  },
-  {
-    id: '2',
-    title: 'Charla de Finanzas',
-    location: 'Campus principal, Auditorio A',
-    date: '25/09/202ES, 3:00pm',
-    attendees: 30,
-    likes: 14,
-    imageUrl: 'https://imgs.search.brave.com/_oIRzfMh3rnSoCeKht2wosOReyaWfeYhgD_mJh_Lw3s/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9maWxl/cy53aW5zcG9ydHMu/Y28vYXNzZXRzL3B1/YmxpYy9zdHlsZXMv/bGFyZ2UvcHVibGlj/LzIwMjQtMTAvZGF5/cm8lMjBlbiUyMHdp/bi5qcGcud2VicD9p/dG9rPTJzcl82MUdC',
-  },
-  {
-    id: '3',
-    title: 'Noche de Parranda',
-    location: 'Campus principal, Edificio C',
-    date: '30/09/202ES, 8:00pm',
-    attendees: 55,
-    likes: 98,
-    imageUrl: 'https://imgs.search.brave.com/_oIRzfMh3rnSoCeKht2wosOReyaWfeYhgD_mJh_Lw3s/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9maWxl/cy53aW5zcG9ydHMu/Y28vYXNzZXRzL3B1/YmxpYy9zdHlsZXMv/bGFyZ2UvcHVibGlj/LzIwMjQtMTAvZGF5/cm8lMjBlbiUyMHdp/bi5qcGcud2VicD9p/dG9rPTJzcl82MUdC',
-  },
-  {
-    id: '4',
-    title: 'Maratón de Código',
-    location: 'Salón de Sistemas, 4to piso',
-    date: '10/10/202ES, 9:00am',
-    attendees: 22,
-    likes: 31,
-    imageUrl: 'https://imgs.search.brave.com/_oIRzfMh3rnSoCeKht2wosOReyaWfeYhgD_mJh_Lw3s/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9maWxl/cy53aW5zcG9ydHMu/Y28vYXNzZXRzL3B1/YmxpYy9zdHlsZXMv/bGFyZ2UvcHVibGlj/LzIwMjQtMTAvZGF5/cm8lMjBlbiUyMHdp/bi5qcGcud2VicD9p/dG9rPTJzcl82MUdC',
-  },
-];
+// Eliminamos DUMMY_EVENTS ya que usaremos los datos del contexto
 
 
 // --- Pantalla Principal de Eventos ---
 export default function EventsScreen({ navigation }) {
+  // 🚨 2. Obtener eventos y estado de carga del contexto
+  const { events, loading } = useEvents(); 
+  const { user } = useAuth(); 
+
   const [activeTab, setActiveTab] = useState('populares');
   const [searchText, setSearchText] = useState('');
-  const [displayedEvents, setDisplayedEvents] = useState(DUMMY_EVENTS);
+  // 🚨 3. Inicializar displayedEvents con la lista completa del contexto
+  const [displayedEvents, setDisplayedEvents] = useState(events); 
   
+  // 🚨 4. useEffect para actualizar la lista mostrada cuando los eventos cambien
+  useEffect(() => {
+    // Si la lista de eventos del contexto cambia (ej: se crea uno nuevo), 
+    // reiniciamos la lista mostrada (displayedEvents) a la lista completa (events).
+    // Nota: Esto también maneja la carga inicial.
+    setDisplayedEvents(events);
+  }, [events]); 
 
-  const { user } = useAuth(); 
 
   // DEFINIR la lógica de redirección
   const handleProfilePress = () => {
-    if (user) { // Si hay un usuario (está logueado)
-      navigation.navigate("Profile"); // Navegar al perfil
-    } else { // Si NO hay un usuario
-      navigation.navigate("Login"); // Navegar al login
+    if (user) { 
+      navigation.navigate("Profile"); 
+    } else { 
+      navigation.navigate("Login"); 
     }
   };
 
 
-  // Funcion para actualizar la lista filtrada
+  // Funcion para actualizar la lista filtrada por busqueda
   const handleSearch = () => {
     const lowerCaseSearch = searchText.toLowerCase();
 
-    // Filtramos DUMMY_EVENTS y luego aplicamos la logica de pestañas
-    const allFiltered = DUMMY_EVENTS.filter(event =>
+    // 5. Filtramos los eventos REALES del contexto, no DUMMY_EVENTS
+    const allFiltered = events.filter(event =>
       event.title.toLowerCase().includes(lowerCaseSearch) ||
-      event.location.toLowerCase().includes(lowerCaseSearch)
+      event.address.toLowerCase().includes(lowerCaseSearch) // Usamos 'address' ya que 'location' no está en el modelo Firestore
     );
 
     setDisplayedEvents(allFiltered);
     console.log('Buscando eventos por:', searchText);
-    // Aqui iria la logica para filtrar la lista de eventos
   };
 
   // Obtiene los eventos basandose en la pestaña y la busqueda
   const getEventsForTab = () => {
-    // 1. Obtener la lista base (ya filtrada por busqueda)
     const listToFilter = displayedEvents;
 
-    // 2. Aplicar el filtro de la pestaña
     if (activeTab === 'populares') {
-      // Si es populares, simplemente muestra la lista filtrada por la busqueda
+      // Aquí se podría añadir lógica real para ordenar por 'likes' o 'attendees'
       return listToFilter;
     }
     if (activeTab === 'mis eventos') {
-      
-      return listToFilter.filter(event => event.id === '1');
+      // 6. Filtra por el ID del usuario actual (si existe)
+      if (!user) return [];
+      return listToFilter.filter(event => event.userId === user.uid);
     }
     return listToFilter; 
   };
+  
+  // 🚨 7. Muestra un indicador de carga mientras se obtienen los datos
+  if (loading) {
+      return (
+          <View style={[styles.container, styles.loadingContainer]}>
+              <ActivityIndicator size="large" color={COLORS.primary} />
+              <Text style={[GLOBAL.text, { marginTop: 10, color: COLORS.primary }]}>Cargando eventos...</Text>
+          </View>
+      );
+  }
 
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
 
-      
+        {/* ... (Header y Search Container no cambian) ... */}
         <View style={styles.header}>
           <Text style={[styles.headerTitle, GLOBAL.text]}>Eventos</Text>
-
-          
           <View style={styles.headerIcons}>
             <TouchableOpacity >
               <Ionicons name="notifications-outline" size={24} color={COLORS.primary} />
@@ -125,13 +107,11 @@ export default function EventsScreen({ navigation }) {
               onPress={handleProfilePress} 
               style={styles.profileIcon}
             >
-              
               <Ionicons name="person-circle-outline" size={28} color={COLORS.accent || COLORS.primary} />
             </TouchableOpacity>
           </View>
         </View>
 
-       
         <View>
           <View style={styles.searchContainer}>
             <TextInput
@@ -139,9 +119,8 @@ export default function EventsScreen({ navigation }) {
               placeholderTextColor={COLORS.textSecondary || '#888'}
               style={[styles.searchInput, GLOBAL.text]}
               value={searchText}
-              onChangeText={setSearchText} // Usar directamente el setter
+              onChangeText={setSearchText}
               onSubmitEditing={handleSearch}
-              // Asegurarse de que el TextInput no tenga autoFocus ni este siempre enfocado.
             />
           
             <TouchableOpacity
@@ -152,7 +131,6 @@ export default function EventsScreen({ navigation }) {
             </TouchableOpacity>
           </View>
 
-          
           <View style={styles.tabsContainer}>
             <TouchableOpacity
               style={[styles.tab, activeTab === 'populares' && styles.tabActive]}
@@ -167,14 +145,14 @@ export default function EventsScreen({ navigation }) {
           </View>
         </View>
 
-
-      
+        
         <FlatList
-          data={getEventsForTab()}
+          data={getEventsForTab()} // 8. FlatList usa la función que filtra los datos reales
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <EventCard
               event={item}
+              // El campo que antes era 'location' ahora es 'address' en el modelo de Firestore
               onPress={() => navigation.navigate('EventDetail', { event: item })}
             />
           )}
@@ -203,7 +181,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.background,
     paddingHorizontal: 16,
   },
-
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 50,
+  },
+  // ... (otros estilos no cambian) ...
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -265,7 +248,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   list: {
-    // Asegurar que FlatList ocupe el espacio restante
     flex: 1, 
   },
   emptyContainer: {

@@ -12,7 +12,11 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, GLOBAL } from '../styles/styles';
+// ¡Importaciones clave añadidas!
+import { useEvents } from '../context/EventContext';
+import { useNavigation } from '@react-navigation/native';
 
+// El componente CustomInput no cambia
 const CustomInput = ({ label, placeholder, isRequired = false, style, ...props }) => (
   <View style={styles.inputGroup}>
     <Text style={[styles.inputLabel, GLOBAL.text]}>
@@ -37,10 +41,53 @@ export default function EventForm() {
   const [maxCapacity, setMaxCapacity] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const handlePublish = () => {
-    Alert.alert('En desarrollo', 'La función de publicar eventos aún está en desarrollo.');
+  // --- Hooks necesarios ---
+  const { createEvent } = useEvents(); // 1. Obtenemos la función del context
+  const navigation = useNavigation(); // 2. Obtenemos la navegación
+
+  // --- Lógica de publicación ---
+  const handlePublish = async () => {
+    // 3. Validación de campos obligatorios
+    if (!title.trim() || !description.trim() || !address.trim() || !date.trim() || !time.trim()) {
+      Alert.alert('Campos incompletos', 'Por favor completa todos los campos obligatorios (*).');
+      return;
+    }
+
+    setSubmitting(true);
+
+    // 4. Llamamos a la función del context con todos los estados
+    const result = await createEvent(
+      title, 
+      description, 
+      address, 
+      date, 
+      time, 
+      maxCapacity // maxCapacity es opcional, el context lo maneja
+    );
+
+    setSubmitting(false);
+
+    // 5. Manejamos la respuesta
+    if (result.success) {
+      Alert.alert('Éxito', result.message || 'Evento creado correctamente.');
+      
+      // Limpiamos el formulario
+      setTitle('');
+      setDescription('');
+      setAddress('');
+      setDate('');
+      setTime('');
+      setMaxCapacity('');
+      
+      // 6. Navegamos a la pantalla de eventos (ajusta 'EventsScreen' si se llama diferente)
+      navigation.navigate('Events'); 
+    } else {
+      // Mostramos el error que viene del context
+      Alert.alert('Error', result.message || 'No se pudo crear el evento. Inténtalo de nuevo.');
+    }
   };
 
+  // El JSX no necesita cambios, solo se actualiza la función onPress
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <Text style={[styles.headerTitle, GLOBAL.text]}>Crear Evento</Text>
@@ -111,7 +158,7 @@ export default function EventForm() {
 
       <TouchableOpacity 
         style={[styles.createButton, submitting && styles.buttonDisabled]}
-        onPress={handlePublish}
+        onPress={handlePublish} // ¡Esta es la función que actualizamos!
         disabled={submitting}
       >
         {submitting ? (
@@ -124,6 +171,7 @@ export default function EventForm() {
   );
 }
 
+// Los estilos no cambian
 const styles = StyleSheet.create({
   container: {
     flex: 1,
