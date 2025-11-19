@@ -4,11 +4,14 @@
     "slug": "chatBridge",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "assets/images/Logo.png",
+    "icon": "src/assets/images/Logo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "plugins": [
+      "expo-notifications"
+    ],
     "splash": {
-      "image": "assets/images/Logo.png",
+      "image": "src/assets/images/Logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,13 +20,20 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "assets/images/Logo.png",
+        "foregroundImage": "src/assets/images/Logo.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.santiago.ortiz5.chatBridge",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
-      "favicon": "assets/images/Logo.png"
+      "favicon": "src/assets/images/Logo.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6be6ad8c-9fab-42bf-98d4-8647114467c8"
+      }
     }
   }
 }

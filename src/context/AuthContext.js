@@ -6,7 +6,7 @@ import {
   onAuthStateChanged, 
   signOut 
 } from 'firebase/auth';
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { auth, db } from '../firebase';
 
 const AuthContext = createContext(undefined);
@@ -25,12 +25,20 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const signIn = async (email, password) => {
-    const userCredential = await signInWithEmailAndPassword(auth, email, password).then(userCredential => {
-      setUser(userCredential.user);
+    await signInWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
+      const userLogin = userCredential?.user;
+      const userInfo = await getUserInfo(userLogin.uid);
+      setUser({userLogin, ...userInfo});
     }).catch(error => {
       Alert.alert('Error al iniciar sesión', 'Las credenciales son invalidas');
     });
   };
+
+  const getUserInfo = async (uid) => {
+    const docRef = doc(db, 'users', uid);
+    const docSnap = await getDoc(docRef);
+    return docSnap.data() ?? {};
+  }
 
   const signUp = async (email, password, userName) => {
       createUserWithEmailAndPassword(auth, email, password).then(async (userCredential) => {

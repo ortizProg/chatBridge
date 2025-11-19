@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "305797623657",
+    "project_id": "chatbridge-9ecd3",
+    "storage_bucket": "chatbridge-9ecd3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:305797623657:android:b930aa4f853fe9bd6f97f8",
+        "android_client_info": {
+          "package_name": "com.santiago.ortiz5.chatBridge"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCN-Xy6ncSYfQeCx2YXiE1uCrZAAVKHneQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
