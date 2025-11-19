@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -16,6 +16,8 @@ import { useNavigation } from "@react-navigation/native";
 import CommentItem from "../components/CommentItem";
 import ReplyBar from "../components/ReplyBar";
 import MessageInput from "../components/MessageInput";
+import { useAuth } from "../context/AuthContext";
+import { useComments } from "../hooks/useComments";
 
 export default function DiscussionDetailScreen({ route }) {
   const navigation = useNavigation();
@@ -23,13 +25,12 @@ export default function DiscussionDetailScreen({ route }) {
   const flatListRef = useRef(null);
   const headerOpacity = useRef(new Animated.Value(0)).current;
 
-  const [userName] = useState("Tú");
+  const { user } = useAuth();
+  const currentUser = { uid: user?.uid, userName: user?.userName || user?.displayName || "Usuario" };
+
+  const { comments, loadingComments, addComment } = useComments(item.id, currentUser);
+
   const [replyingTo, setReplyingTo] = useState(null);
-  const [comments, setComments] = useState([
-    { id: "1", text: "Hola, qué opinan de este tema?", author: "María" },
-    { id: "2", text: "Interesante publicación 🔥", author: "Carlos" },
-    { id: "3", text: "Me parece muy útil esta información", author: "Juan" },
-  ]);
 
   useEffect(() => {
     Animated.timing(headerOpacity, {
@@ -39,30 +40,20 @@ export default function DiscussionDetailScreen({ route }) {
     }).start();
   }, []);
 
-  const handleSend = (message) => {
-    if (message.trim()) {
-      const newComment = {
-        id: Date.now().toString(),
-        text: message,
-        author: userName,
-        replyTo: replyingTo,
-      };
-
-      setComments((prev) => [...prev, newComment]);
+  const handleSend = async (message) => {
+    if (!user) return navigation.navigate("Login");
+    const res = await addComment(message, replyingTo ? {
+      id: replyingTo.id,
+      authorId: replyingTo.authorId,
+      authorName: replyingTo.authorName,
+      text: replyingTo.text,
+    } : null);
+    if (res.success) {
       setReplyingTo(null);
-
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 100);
+      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 150);
+    } else {
+      console.log("Error al agregar comentario", res.error);
     }
-  };
-
-  const handleReply = (comment) => {
-    setReplyingTo(comment);
-  };
-
-  const handleCancelReply = () => {
-    setReplyingTo(null);
   };
 
   return (
@@ -72,9 +63,7 @@ export default function DiscussionDetailScreen({ route }) {
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
     >
       <View style={[GLOBAL.container, styles.mainContainer]}>
-        <Animated.View
-          style={[styles.headerContainer, { opacity: headerOpacity }]}
-        >
+        <Animated.View style={[styles.headerContainer, { opacity: headerOpacity }]}>
           <TouchableOpacity
             style={styles.backButton}
             onPress={() => navigation.goBack()}
@@ -86,18 +75,12 @@ export default function DiscussionDetailScreen({ route }) {
           <View style={[GLOBAL.card, styles.postContainer]}>
             <View style={styles.header}>
               <Image
-                source={
-                  item.image
-                    ? item.image
-                    : require("../assets/images/Dayrito.png")
-                }
+                source={ item.image ? item.image : require("../assets/images/Dayrito.png") }
                 style={styles.avatar}
               />
               <View style={styles.headerContent}>
                 <Text style={[styles.title, GLOBAL.text]}>{item.title}</Text>
-                <Text style={[styles.description, GLOBAL.textSecondary]}>
-                  {item.description}
-                </Text>
+                <Text style={[styles.description, GLOBAL.textSecondary]}>{item.description}</Text>
               </View>
             </View>
           </View>
@@ -110,74 +93,79 @@ export default function DiscussionDetailScreen({ route }) {
           renderItem={({ item: comment }) => (
             <CommentItem
               comment={comment}
-              currentUser={userName}
-              onReply={handleReply}
+              currentUser={currentUser}
+              onReply={(c) => setReplyingTo(c)}
             />
           )}
           contentContainerStyle={styles.commentsList}
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          onContentSizeChange={() => {
-            flatListRef.current?.scrollToEnd({ animated: true });
-          }}
+          ListEmptyComponent={() => (
+            <View style={{ padding: 20 }}>
+              <Text style={GLOBAL.textSecondary}>Sé el primero en comentar.</Text>
+            </View>
+          )}
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
         />
 
         {replyingTo && (
-          <ReplyBar replyingTo={replyingTo} onCancel={handleCancelReply} />
+          <ReplyBar replyingTo={replyingTo} onCancel={() => setReplyingTo(null)} />
         )}
 
-        <MessageInput onSend={handleSend} />
+        <MessageInput 
+          onSend={handleSend}
+          onSendComplete={() => setReplyingTo(null)}
+        />
       </View>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  mainContainer: {
-    paddingTop: 10,
-    paddingBottom: 0,
+  mainContainer: { 
+    paddingTop: 10, 
+    paddingBottom: 0 
   },
-  headerContainer: {
-    zIndex: 10,
+  headerContainer: { 
+    zIndex: 10 
   },
-  backButton: {
-    position: "absolute",
-    top: 10,
-    left: 16,
-    zIndex: 20,
-    backgroundColor: "rgba(0,0,0,0.7)",
-    padding: 8,
-    borderRadius: 20,
+  backButton: { 
+    position: "absolute", 
+    top: 10, 
+    left: 16, 
+    zIndex: 20, 
+    backgroundColor: "rgba(0,0,0,0.7)", 
+    padding: 8, 
+    borderRadius: 20 
   },
-  postContainer: {
-    marginTop: 50,
-    marginBottom: 16,
+  postContainer: { 
+    marginTop: 50, 
+    marginBottom: 16 
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 12,
+  header: { 
+    flexDirection: "row", 
+    alignItems: "flex-start", 
+    gap: 12 
   },
-  avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: "#2a2a2a",
+  avatar: { 
+    width: 50, 
+    height: 50, 
+    borderRadius: 25, 
+    backgroundColor: "#2a2a2a" 
   },
-  headerContent: {
-    flex: 1,
+  headerContent: { 
+    flex: 1 
   },
-  title: {
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 4,
+  title: { 
+    fontSize: 16, 
+    fontWeight: "600", 
+    marginBottom: 4 
   },
-  description: {
-    fontSize: 14,
-    lineHeight: 20,
+  description: { 
+    fontSize: 14, 
+    lineHeight: 20 
   },
-  commentsList: {
-    paddingBottom: 120,
-    paddingTop: 8,
+  commentsList: { 
+    paddingBottom: 120, 
+    paddingTop: 8 
   },
 });

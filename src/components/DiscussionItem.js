@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -8,14 +8,21 @@ import { usePosts } from "../context/PostContext";
 export default function DiscussionItem({ item }) {
   const navigation = useNavigation();
   const { updatePostStats } = usePosts();
+  const [liked, setLiked] = useState(item.userHasLiked || false);
+
+  useEffect(() => {
+    setLiked(item.userHasLiked || false);
+  }, [item.userHasLiked, item.id]);
 
   const goToDetail = () => {
     navigation.navigate("DiscussionDetail", { item });
   };
 
-  const handleLike = (e) => {
+  const handleLike = async (e) => {
     e.stopPropagation();
-    updatePostStats(item.id, 'likes');
+    const newState = !liked;
+    setLiked(newState);
+    await updatePostStats(item.id, "likes");
   };
 
   const handleComment = (e) => {
@@ -25,7 +32,7 @@ export default function DiscussionItem({ item }) {
 
   const handleView = (e) => {
     e.stopPropagation();
-    updatePostStats(item.id, 'views');
+    updatePostStats(item.id, "views");
   };
 
   return (
@@ -41,7 +48,7 @@ export default function DiscussionItem({ item }) {
 
       <View style={styles.content}>
         <Text style={[styles.author, GLOBAL.textSecondary]} numberOfLines={1}>
-          {item.userName || 'Usuario'}
+          {item.userName || "Usuario"}
         </Text>
 
         <Text style={[styles.title, GLOBAL.text]} numberOfLines={2}>
@@ -49,40 +56,43 @@ export default function DiscussionItem({ item }) {
         </Text>
 
         {item.description && (
-          <Text style={[styles.description, GLOBAL.textSecondary]} numberOfLines={2}>
+          <Text
+            style={[styles.description, GLOBAL.textSecondary]}
+            numberOfLines={2}
+          >
             {item.description}
           </Text>
         )}
 
         <View style={styles.stats}>
-          <TouchableOpacity 
-            style={styles.statItem}
-            onPress={handleView}
-            activeOpacity={0.6}
-          >
+          <TouchableOpacity style={styles.statItem} onPress={handleView}>
             <Ionicons name="eye-outline" size={16} color={COLORS.accent} />
             <Text style={[styles.stat, GLOBAL.textSecondary]}>
               {item.stats?.views || 0}
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            style={styles.statItem}
-            onPress={handleComment}
-            activeOpacity={0.6}
-          >
-            <Ionicons name="chatbubble-outline" size={16} color={COLORS.primary} />
+          <TouchableOpacity style={styles.statItem} onPress={handleComment}>
+            <Ionicons
+              name="chatbubble-outline"
+              size={16}
+              color={COLORS.primary}
+            />
             <Text style={[styles.stat, GLOBAL.textSecondary]}>
               {item.stats?.comments || 0}
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.statItem}
             onPress={handleLike}
-            activeOpacity={0.6}
+            activeOpacity={0.7}
           >
-            <Ionicons name="flash-outline" size={16} color="#f5c518" />
+            <Ionicons
+              name={liked ? "flash" : "flash-outline"}
+              size={18}
+              color={liked ? "#ffd60a" : "#f5c518"}
+            />
             <Text style={[styles.stat, GLOBAL.textSecondary]}>
               {item.stats?.likes || 0}
             </Text>
