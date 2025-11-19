@@ -3,10 +3,12 @@ import { StyleSheet, Text, View, FlatList } from 'react-native';
 import { COLORS, GLOBAL } from '../styles/styles';
 import MenuItem from '../components/MenuItem';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext';
 
 export default function SettingsScreen({navigation}) {
 
   const { user, logout } = useAuth();
+  const { clearToken } = useNotification();
 
   const options = [];
   
@@ -19,6 +21,7 @@ export default function SettingsScreen({navigation}) {
         onPress: async () => {
           const successLogout = await logout();
           if(!successLogout) return;
+          clearToken();
           navigation?.navigate('Login')
         }
       }
