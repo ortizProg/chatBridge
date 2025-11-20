@@ -6,8 +6,9 @@ import {
   onAuthStateChanged, 
   signOut 
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from "firebase/firestore";
-import { auth, db } from '../firebase';
+import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { auth, db, storage } from '../firebase';
 
 const AuthContext = createContext(undefined);
 
@@ -53,6 +54,44 @@ export const AuthProvider = ({ children }) => {
       })
   };
 
+  const uriToBlob = (uri) => {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function (e) {
+        reject(new TypeError("Fallo la conversión de URI a Blob."));
+      };
+      xhr.responseType = 'blob';
+      xhr.open('GET', uri, true);
+      xhr.send(null);
+    });
+  };
+
+  const uploadImage = async (uri, userId) => {
+    if (!uri) return null;
+    try {
+      const blob = await uriToBlob(uri);
+      const filename = `${userId}.jpg`;
+      const storageRef = ref(storage, `users/${filename}`);
+      await uploadBytes(storageRef, blob);
+      const downloadURL = await getDownloadURL(storageRef);
+      return downloadURL;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  };
+
+  const saveImage = async (uri) => {
+    const imageUrl = await uploadImage(uri, user.uid);
+    await updateDoc(doc(db, "users", user.uid), {
+      img: imageUrl,
+    }).then((res) => {
+      Alert.alert('Acción exitosa', 'Cambio de imágen realizado exitosamente')
+    })
+  }
+
   const logout = async () => {
     await signOut(auth).then(() => {
       setUser(null);
@@ -62,7 +101,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const value = useMemo(
-    () => ({ user, authLoading, signIn, signUp, logout }),
+    () => ({ user, authLoading, signIn, signUp, logout, saveImage }),
     [user, authLoading]
   );
 

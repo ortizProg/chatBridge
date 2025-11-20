@@ -1,20 +1,21 @@
 import { View, Image, StyleSheet, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useState, useEffect } from "react";
+import * as ImagePicker from 'expo-image-picker';
 
 import Header from "../components/Header";
 import { GLOBAL, COLORS } from "../styles/styles";
 
 import { doc, getDoc } from "firebase/firestore";
-
 import { db } from '../firebase';
 import { useAuth } from "../context/AuthContext";
 
 export default function ProfileScreen({ navigation }) {
 
-  const { user } = useAuth();
+  const { user, saveImage } = useAuth();
 
   const [profile, setProfile] = useState(null);
+  const [selectedImageUri, setSelectedImageUri] = useState(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -32,16 +33,46 @@ export default function ProfileScreen({ navigation }) {
     if (user?.uid) fetchProfile();
   }, [user?.uid]);
 
+  const pickImage = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permiso requerido', 'Necesitamos permiso para acceder a la galería.');
+      return;
+    }
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+
+    if (!result.canceled) {
+      setSelectedImageUri(result.assets[0].uri);
+      saveImage(result.assets[0].uri)
+    }
+  };
+
   return (
     <View style={[GLOBAL.container, styles.primaryContainer]}>
       <Header navigation={navigation} />
 
       <View style={styles.container}>
-        <Image 
-          source={require("../assets/images/profile.png")} 
-          style={styles.image} 
-          resizeMode="contain"
-        />
+        <TouchableOpacity onPress={pickImage}>
+          {
+            selectedImageUri ?
+            <Image 
+              source={{ uri: selectedImageUri }} 
+              style={styles.image} 
+              resizeMode="contain"
+            /> : 
+            <Image 
+              source={profile?.img ?{uri: profile?.img} : require("../assets/images/profile.png")} 
+              style={styles.image} 
+              resizeMode="contain"
+            />
+          }
+        </TouchableOpacity>
         <Text style={styles.text} >
           @{profile?.userName}
         </Text>
