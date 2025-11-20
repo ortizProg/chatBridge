@@ -9,17 +9,15 @@ import {
   Alert,
   Platform,
   ActivityIndicator,
-  Image // Importado para la previsualización
+  Image 
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, GLOBAL } from '../styles/styles';
 import { useEvents } from '../context/EventContext';
 import { useNavigation } from '@react-navigation/native';
-// Importar íconos y el ImagePicker
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 
-// --- Componente CustomInput (Asumiendo que está en este archivo) ---
 const CustomInput = ({ label, placeholder, isRequired = false, style, ...props }) => (
   <View style={styles.inputGroup}>
     <Text style={[styles.inputLabel, GLOBAL.text]}>
@@ -34,7 +32,6 @@ const CustomInput = ({ label, placeholder, isRequired = false, style, ...props }
   </View>
 );
 
-// --- Componente Principal EventForm ---
 export default function EventForm() {
   const insets = useSafeAreaInsets();
   const [title, setTitle] = useState('');
@@ -44,15 +41,12 @@ export default function EventForm() {
   const [time, setTime] = useState('');
   const [maxCapacity, setMaxCapacity] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  // Estado para la URI de la imagen seleccionada
   const [selectedImageUri, setSelectedImageUri] = useState(null);
 
   const { createEvent } = useEvents();
   const navigation = useNavigation();
 
-  // Función para seleccionar la imagen
   const pickImage = async () => {
-    // Pedir permisos
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Permiso requerido', 'Necesitamos permiso para acceder a la galería.');
@@ -62,8 +56,8 @@ export default function EventForm() {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [16, 9], // Aspecto panorámico para portadas
-      quality: 0.7, // Comprimir para subidas más rápidas
+      aspect: [16, 9], 
+      quality: 0.7, 
     });
 
     if (!result.canceled) {
@@ -71,9 +65,7 @@ export default function EventForm() {
     }
   };
 
-  // Lógica de publicación (Actualizada)
   const handlePublish = async () => {
-    // Validación (incluir la imagen)
     if (!title.trim() || !description.trim() || !address.trim() || !date.trim() || !time.trim() || !selectedImageUri) {
       Alert.alert('Campos incompletos', 'Por favor completa todos los campos obligatorios (*) y selecciona una foto de portada.');
       return;
@@ -81,7 +73,6 @@ export default function EventForm() {
 
     setSubmitting(true);
 
-    // Llamar a createEvent con la URI de la imagen
     const result = await createEvent(
       title,
       description,
@@ -89,7 +80,7 @@ export default function EventForm() {
       date,
       time,
       maxCapacity,
-      selectedImageUri // Pasar la URI
+      selectedImageUri 
     );
 
     setSubmitting(false);
@@ -97,14 +88,13 @@ export default function EventForm() {
     if (result.success) {
       Alert.alert('Éxito', result.message || 'Evento creado correctamente.');
 
-      // Limpiar formulario
       setTitle('');
       setDescription('');
       setAddress('');
       setDate('');
       setTime('');
       setMaxCapacity('');
-      setSelectedImageUri(null); // Limpiar la imagen
+      setSelectedImageUri(null); 
 
       navigation.navigate('Events');
     } else {
@@ -122,7 +112,6 @@ export default function EventForm() {
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        {/* BLOQUE DEL SELECTOR DE IMAGEN */}
         <Text style={[styles.inputLabel, GLOBAL.text]}>
           Foto de Portada<Text style={{ color: COLORS.accent }}>*</Text>
         </Text>
@@ -132,10 +121,8 @@ export default function EventForm() {
           disabled={submitting}
         >
           {selectedImageUri ? (
-            // Previsualización si la imagen está seleccionada
             <Image source={{ uri: selectedImageUri }} style={styles.imagePreview} />
           ) : (
-            // Botón placeholder si no hay imagen
             <View style={styles.imagePlaceholder}>
               <Ionicons name="camera-outline" size={40} color={COLORS.textSecondary} />
               <Text style={[styles.imagePlaceholderText, GLOBAL.textSecondary]}>Seleccionar imagen</Text>
@@ -216,7 +203,6 @@ export default function EventForm() {
   );
 }
 
-// --- Estilos ---
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -264,7 +250,6 @@ const styles = StyleSheet.create({
     color: COLORS.text || '#fff',
   },
 
-  // --- Estilos para el Selector de Imagen ---
   imagePicker: {
     width: '100%',
     height: 180,
@@ -275,7 +260,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: COLORS.textSecondary + '60', // Borde sutil
+    borderColor: COLORS.textSecondary + '60', 
   },
   imagePlaceholder: {
     justifyContent: 'center',
@@ -292,7 +277,6 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'cover',
   },
-  // --- Fin de Estilos de Imagen ---
 
   createButton: {
     backgroundColor: COLORS.primary,
