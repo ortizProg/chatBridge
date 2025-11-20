@@ -5,6 +5,9 @@ import {
   addDoc,
   updateDoc,
   getDoc,
+  query,
+  orderBy,
+  onSnapshot
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import { Platform, Alert } from 'react-native';
@@ -32,6 +35,8 @@ export const NotificationProvider = ({ children }) => {
   const [notification, setNotification] = useState(
     undefined
   );
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   async function registerForPushNotificationsAsync() {
     if (Platform.OS === 'android') {
@@ -75,6 +80,29 @@ export const NotificationProvider = ({ children }) => {
   }
 
   useEffect(() => {
+
+    setNotifications([]);
+    setLoading(true);
+
+    if(!user?.uid) return;
+
+    const q = query(collection(db, "users", user?.uid, 'notifications'), orderBy("createdAt", "desc"));
+
+    const unsub = onSnapshot(q, async (snapshot) => {
+      
+      const postsData = await Promise.all(
+        snapshot.docs.map(async (postDoc) => {
+          const post = { id: postDoc.id, ...postDoc.data() };
+          return post;
+        })
+      );
+
+      setNotifications(postsData);
+      setLoading(false);
+    }, (error) => {
+      setLoading(false);
+    });
+
     const notificationListener = Notifications.addNotificationReceivedListener(notification => {
       setNotification(notification);
     //   Alert.alert(notification)
@@ -87,8 +115,9 @@ export const NotificationProvider = ({ children }) => {
     return () => {
       notificationListener.remove();
       responseListener.remove();
+      unsub();
     };
-  }, []);
+  }, [user]);
 
   const registerNotificationToken = async () => {
     registerForPushNotificationsAsync()
@@ -120,7 +149,7 @@ export const NotificationProvider = ({ children }) => {
     const docRef = await addDoc(notificationsCollectionRef(userId), {
       userId,
       title: data.title,
-      title: data.body,
+      body: data.body,
       read: false,
       createdAt: new Date().toISOString(),
     });
@@ -166,8 +195,8 @@ export const NotificationProvider = ({ children }) => {
   }
 
   const value = useMemo(
-    () => ({ expoPushToken, sendPushNotification, registerNotificationToken, clearToken, createNotification }),
-    [expoPushToken]
+    () => ({ expoPushToken, sendPushNotification, registerNotificationToken, clearToken, createNotification, loading, notifications }),
+    [expoPushToken, loading, notifications]
   );
 
   return <NotificationContext.Provider value={value}>{children}</NotificationContext.Provider>;

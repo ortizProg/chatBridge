@@ -15,7 +15,7 @@ import EventDetailScreen from "../screens/EventDetailScreen";
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import ProfileScreen from "../screens/ProfileScreen";
-import NotificationsScreen from "../screens/Notifications";
+import NotificationsScreen from "../screens/NotificationsScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();

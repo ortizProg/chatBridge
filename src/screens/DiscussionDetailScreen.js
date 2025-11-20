@@ -57,10 +57,12 @@ export default function DiscussionDetailScreen({ route }) {
 
       const data = {
         title: 'Publicación',
-        body: 'Alguien a comentado tu publicación'
+        body: `Alguien ha comentado tu publicación "${item.title}"`
       }
 
-      createNotification(item.userId, data);
+      if(item.userId != user.uid) {
+        createNotification(item.userId, data);
+      }
 
     } else {
       console.log("Error al agregar comentario", res.error);
