@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,67 +10,124 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, GLOBAL } from '../styles/styles';
-// Importamos useEvents si planeamos integrar la interacción con Firestore (likes/asistencia)
-// import { useEvents } from '../context/EventContext'; 
+import { useEvents } from '../context/EventContext';
+import { useAuth } from '../context/AuthContext';
+import { db } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 
-const AttendeeItem = ({ name }) => (
-  <View style={styles.attendeeItem}>
 
-    <View style={styles.avatarPlaceholder}>
-      <Text style={styles.avatarText}>{name[0]}</Text>
+const AttendeeItem = ({ name }) => {
+  const displayName =
+    name?.includes('@') ? name.split('@')[0] : name || "Invitado";
+
+  return (
+    <View style={styles.attendeeItem}>
+      <View style={styles.avatarPlaceholder}>
+        <Text style={styles.avatarText}>{displayName[0]?.toUpperCase()}</Text>
+      </View>
+      <Text style={[styles.attendeeName, GLOBAL.text]}>{displayName}</Text>
     </View>
-    <Text style={[styles.attendeeName, GLOBAL.text]}>{name}</Text>
-  </View>
-);
+  );
+};
 
 
 export default function EventDetailScreen({ route, navigation }) {
-  // Obtenemos los datos del evento pasados desde EventsScreen
   const { event } = route.params;
+  const { toggleAttendance, toggleLike } = useEvents();
+  const { user } = useAuth();
 
-  // 💡 USAMOS LOS DATOS REALES DE FIRESTORE PARA INICIALIZAR ESTADOS
+  const [attendeesList, setAttendeesList] = useState(event.attendees || []);
+  const [attendeesNames, setAttendeesNames] = useState([]);
+
   const [isAttending, setIsAttending] = useState(false);
-
-  // Usamos el conteo real de Firestore, asegurando un valor por defecto
-  const [attendeesCount, setAttendeesCount] = useState(event.stats?.attendees || 0);
   const [likesCount, setLikesCount] = useState(event.stats?.likes || 0);
+  const [attendeesCount, setAttendeesCount] = useState(event.stats?.attendees || 0);
   const [isLiked, setIsLiked] = useState(false);
 
-  // Lista simulada de asistentes (debería venir de un campo en Firestore)
-  const [attendeesList, setAttendeesList] = useState([
-    { id: 'u1', name: 'Juan Perez' },
-    { id: 'u2', name: 'Maria Lopez' },
-  ]);
 
 
-  const handleToggleAttendance = () => {
-    // 🚨 Aquí iría la llamada a updateEventStats('attendees', isAttending ? -1 : 1)
-    setIsAttending(prev => !prev);
-    // Simular actualización de conteo local
-    setAttendeesCount(prev => prev + (isAttending ? -1 : 1));
+  const resolveUserName = async (uid) => {
+    try {
+      const ref = doc(db, "users", uid);
+      const snap = await getDoc(ref);
+
+      if (snap.exists()) {
+        const data = snap.data();
+
+     
+        if (data.userName) return data.userName;
+
+
+        if (data.name) return data.name;
+      }
+
+  
+      if (uid.includes("@")) return uid.split("@")[0];
+
+ 
+      return uid;
+
+    } catch (error) {
+      return uid;
+    }
   };
 
-  const handleMapPress = () => {
-    // Aquí iría la lógica para abrir Google Maps/Apple Maps
-    console.log(`Abriendo mapa para la ubicación: ${event.address}`);
+
+
+  useEffect(() => {
+    if (user && attendeesList.includes(user.uid)) {
+      setIsAttending(true);
+    }
+  }, [event, user]);
+
+
+  useEffect(() => {
+    const loadNames = async () => {
+      const names = [];
+      for (const uid of attendeesList) {
+        names.push(await resolveUserName(uid));
+      }
+      setAttendeesNames(names);
+    };
+
+    loadNames();
+  }, [attendeesList]);
+
+
+  const handleToggleAttendance = async () => {
+    if (!user) return;
+
+    const newState = await toggleAttendance(event.id, user.uid);
+
+    setIsAttending(newState);
+
+    if (newState) {
+      setAttendeesList(prev => [...prev, user.uid]);
+      setAttendeesCount(prev => prev + 1);
+    } else {
+      setAttendeesList(prev => prev.filter(id => id !== user.uid));
+      setAttendeesCount(prev => prev - 1);
+    }
   };
 
-  const handleLikePress = () => {
-    // 🚨 Aquí iría la llamada a updateEventStats('likes', isLiked ? -1 : 1)
-    setLikesCount(prev => prev + (isLiked ? -1 : 1));
-    setIsLiked(prev => !prev);
-  }
+
+
+  const handleLikePress = async () => {
+    if (!user) return;
+    const newState = await toggleLike(event.id, isLiked);
+    setIsLiked(newState);
+    setLikesCount(prev => prev + (newState ? 1 : -1));
+  };
 
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
 
-
+  
         <ImageBackground
-          // 💡 Usar una URL por defecto si event.imageUrl no existe para evitar crash
-          source={{ uri: event.imageUrl || 'https://via.placeholder.com/150' }}
+          source={{ uri: event.imageUrl }}
           style={styles.imageHeader}
         >
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -78,7 +135,9 @@ export default function EventDetailScreen({ route, navigation }) {
           </TouchableOpacity>
         </ImageBackground>
 
+      
         <View style={styles.contentContainer}>
+
 
           <View style={styles.titleContainer}>
             <Text style={[styles.title, GLOBAL.text]}>{event.title}</Text>
@@ -87,17 +146,16 @@ export default function EventDetailScreen({ route, navigation }) {
             </TouchableOpacity>
           </View>
 
-
           <View style={styles.infoContainer}>
             <Ionicons name="pin" size={18} color={COLORS.textSecondary} />
-            {/* 🎯 CORREGIDO: Usamos event.address del formulario */}
             <Text style={[styles.infoText, GLOBAL.textSecondary]}>{event.address}</Text>
           </View>
+
           <View style={styles.infoContainer}>
             <Ionicons name="calendar" size={18} color={COLORS.textSecondary} />
             <Text style={[styles.infoText, GLOBAL.textSecondary]}>{event.date}</Text>
           </View>
-          {/* 💡 AÑADIDO: Mostrar la hora */}
+
           <View style={styles.infoContainer}>
             <Ionicons name="time-outline" size={18} color={COLORS.textSecondary} />
             <Text style={[styles.infoText, GLOBAL.textSecondary]}>{event.time}</Text>
@@ -105,16 +163,11 @@ export default function EventDetailScreen({ route, navigation }) {
 
 
           <Text style={[styles.sectionTitle, GLOBAL.text]}>Descripción</Text>
-          <Text style={[styles.description, GLOBAL.text]}>
-            {/* 🎯 CORREGIDO: Usamos la descripción real del evento */}
-            {event.description}
-          </Text>
-
+          <Text style={[styles.description, GLOBAL.text]}>{event.description}</Text>
 
           <View style={styles.interactionBar}>
             <View style={styles.iconCount}>
               <Ionicons name="people" size={20} color={COLORS.text} />
-              {/* 💡 Usamos el conteo real que se inicializó con event.stats.attendees */}
               <Text style={[styles.countText, GLOBAL.text]}>{attendeesCount}</Text>
             </View>
 
@@ -124,10 +177,10 @@ export default function EventDetailScreen({ route, navigation }) {
                 size={20}
                 color={isLiked ? COLORS.accent : COLORS.text}
               />
-              {/* 💡 Usamos el conteo real que se inicializó con event.stats.likes */}
               <Text style={[styles.countText, GLOBAL.text]}>{likesCount}</Text>
             </TouchableOpacity>
           </View>
+
 
           <TouchableOpacity
             style={[styles.actionButton, isAttending && styles.cancelButton]}
@@ -138,184 +191,138 @@ export default function EventDetailScreen({ route, navigation }) {
             </Text>
           </TouchableOpacity>
 
-          <Text style={[styles.sectionTitle, styles.attendeesSection, GLOBAL.text]}>Asistentes ({attendeesList.length})</Text>
+
+          <Text style={[styles.sectionTitle, styles.attendeesSection, GLOBAL.text]}>
+            Asistentes ({attendeesNames.length})
+          </Text>
+
           <View style={styles.attendeesContainer}>
-            {attendeesList.map(attendee => (
-              <AttendeeItem key={attendee.id} name={attendee.name} />
+            {attendeesNames.map((name, index) => (
+              <AttendeeItem key={index} name={name} />
             ))}
           </View>
 
-          <TouchableOpacity style={styles.mapButton} onPress={handleMapPress}>
-            <Ionicons name="map" size={24} color={COLORS.background} />
-          </TouchableOpacity>
-
         </View>
-
       </ScrollView>
     </SafeAreaView>
   );
 }
 
+
+
+
+
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.background,
-  },
+  safeArea: { flex: 1, backgroundColor: COLORS.background },
+  container: { flex: 1, backgroundColor: COLORS.background },
 
   imageHeader: {
-    width: '100%',
-    height: 250,
-    justifyContent: 'flex-start',
-    padding: 16,
+    width: "100%",
+    height: 250
   },
+
   backButton: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    borderRadius: 20,
-    width: 40,
-    height: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 10,
-    marginLeft: -5,
-  },
+  position: 'absolute',
+  top: 25,
+  left: 20,
+  backgroundColor: "rgba(197, 188, 188, 0.5)",
+  width: 55,
+  height: 55,
+  justifyContent: "center",
+  alignItems: "center",
+  borderRadius: 35,
+  shadowColor: '#000',
+  shadowOpacity: 0.3,
+  shadowRadius: 5,
+  elevation: 4
+},
 
-  contentContainer: {
-    padding: 16,
-  },
 
+  contentContainer: { padding: 16 },
 
   titleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: COLORS.primary,
-    flexShrink: 1,
-  },
-  alertButton: {
-    padding: 5,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 10
   },
 
+  title: { fontSize: 28, fontWeight: "bold", color: COLORS.primary },
 
   infoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  infoText: {
-    fontSize: 16,
-    marginLeft: 8,
-    color: COLORS.textSecondary,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 5
   },
 
+  infoText: { marginLeft: 8, fontSize: 16 },
 
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.primary,
+    fontWeight: "bold",
     marginTop: 20,
-    marginBottom: 10,
-  },
-  description: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: COLORS.text,
-    marginBottom: 20,
+    marginBottom: 10
   },
 
+  description: { fontSize: 16, lineHeight: 24, marginBottom: 20 },
 
   interactionBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-start',
+    flexDirection: "row",
     paddingVertical: 10,
     borderTopWidth: 1,
     borderBottomWidth: 1,
-    borderColor: COLORS.surface || '#333',
-    marginBottom: 20,
-  },
-  iconCount: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 25,
-  },
-  countText: {
-    fontSize: 16,
-    marginLeft: 6,
-    fontWeight: '600',
-    color: COLORS.text,
+    borderColor: COLORS.surface,
+    marginBottom: 20
   },
 
+  iconCount: { flexDirection: "row", alignItems: "center", marginRight: 25 },
+  countText: { fontSize: 16, marginLeft: 6 },
 
   actionButton: {
     backgroundColor: COLORS.accent,
     borderRadius: 10,
     paddingVertical: 15,
-    alignItems: 'center',
-    marginBottom: 15,
-    elevation: 3,
+    alignItems: "center",
+    marginBottom: 15
   },
+
   cancelButton: {
-    backgroundColor: COLORS.surface || '#333',
+    backgroundColor: COLORS.surface,
     borderWidth: 1,
-    borderColor: COLORS.accent,
+    borderColor: COLORS.accent
   },
+
   actionButtonText: {
-    color: COLORS.background,
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
+    color: COLORS.background
   },
 
+  attendeesSection: { marginTop: 10 },
 
-  attendeesSection: {
-    marginTop: 10,
-  },
-  attendeesContainer: {
-
-  },
   attendeeItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-    paddingVertical: 5,
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10
   },
+
   avatarPlaceholder: {
     width: 40,
     height: 40,
-    borderRadius: 20,
     backgroundColor: COLORS.textSecondary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  avatarText: {
-    color: COLORS.background,
-    fontWeight: 'bold',
-    fontSize: 18,
-  },
-  attendeeName: {
-    fontSize: 16,
-    color: COLORS.text,
+    borderRadius: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10
   },
 
-  mapButton: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: COLORS.primary,
-    borderRadius: 30,
-    width: 60,
-    height: 60,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
+  avatarText: {
+    color: COLORS.background,
+    fontWeight: "bold",
+    fontSize: 18
+  },
+
+  attendeeName: {
+    fontSize: 16,
+    color: COLORS.text
   }
 });

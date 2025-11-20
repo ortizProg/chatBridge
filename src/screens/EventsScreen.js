@@ -23,7 +23,7 @@ export default function EventsScreen({ navigation }) {
   const [searchText, setSearchText] = useState('');
   const [displayedEvents, setDisplayedEvents] = useState([]);
 
-  // Sincronizar estado local con el contexto
+
   useEffect(() => {
     setDisplayedEvents(events);
   }, [events]);
@@ -46,11 +46,11 @@ export default function EventsScreen({ navigation }) {
   };
 
   const getEventsForTab = () => {
-    // Si hay búsqueda activa, priorizar resultados de búsqueda
+
     if (searchText.trim() !== '') return displayedEvents;
 
-    const listToFilter = events; // Usar siempre la fuente de verdad
-    
+    const listToFilter = events; 
+
     if (activeTab === 'populares') {
       return listToFilter;
     }
@@ -61,13 +61,13 @@ export default function EventsScreen({ navigation }) {
     return listToFilter;
   };
 
-  // Renderizado de carga
+
   if (loading) {
     return (
       <View style={[styles.container, styles.loadingContainer]}>
         <ActivityIndicator size="large" color={COLORS.primary} />
         <Text style={[GLOBAL.text, { marginTop: 10, color: COLORS.primary }]}>
-            Cargando eventos...
+          Cargando eventos...
         </Text>
       </View>
     );
@@ -77,7 +77,7 @@ export default function EventsScreen({ navigation }) {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
 
-        {/* HEADER */}
+
         <View style={styles.header}>
           <Text style={[styles.headerTitle, GLOBAL.text]}>Eventos</Text>
           <View style={styles.headerIcons}>
@@ -90,7 +90,7 @@ export default function EventsScreen({ navigation }) {
           </View>
         </View>
 
-        {/* BÚSQUEDA Y TABS */}
+ 
         <View>
           <View style={styles.searchContainer}>
             <TextInput
@@ -120,7 +120,7 @@ export default function EventsScreen({ navigation }) {
           </View>
         </View>
 
-        {/* LISTA */}
+
         <FlatList
           data={getEventsForTab()}
           keyExtractor={(item) => item.id}
@@ -138,15 +138,15 @@ export default function EventsScreen({ navigation }) {
             </View>
           )}
         />
-        
-        {/* FAB - Botón flotante para crear */}
+
+
         {user && (
-            <TouchableOpacity 
-                style={styles.fab}
-                onPress={() => navigation.navigate('EventForm')} // Asegúrate que esta ruta existe en tu Navigator
-            >
-                <Ionicons name="add" size={30} color="#fff" />
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.fab}
+            onPress={() => navigation.navigate('EventForm')} 
+          >
+            <Ionicons name="add" size={30} color="#fff" />
+          </TouchableOpacity>
         )}
       </View>
     </SafeAreaView>
@@ -154,22 +154,66 @@ export default function EventsScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: COLORS.background },
-  container: { flex: 1, backgroundColor: COLORS.background, paddingHorizontal: 16 },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.background },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 16 },
-  headerTitle: { fontSize: 24, fontWeight: 'bold', color: COLORS.primary },
-  headerIcons: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  safeArea: { flex: 1,
+     backgroundColor: COLORS.background },
+  container: { flex: 1,
+     backgroundColor: COLORS.background,
+      paddingHorizontal: 16 },
+  loadingContainer: { flex: 1,
+     justifyContent: 'center',
+      alignItems: 'center',
+       backgroundColor: COLORS.background },
+  header: { flexDirection: 'row',
+     justifyContent: 'space-between',
+      alignItems: 'center',
+       paddingVertical: 16 },
+  headerTitle: { fontSize: 24,
+     fontWeight: 'bold',
+      color: COLORS.primary },
+  headerIcons: { flexDirection: 'row',
+     alignItems: 'center', gap: 12 },
   profileIcon: { marginLeft: 8 },
-  searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: COLORS.surface || '#222', borderRadius: 8, paddingRight: 5, marginBottom: 16 },
-  searchInput: { flex: 1, color: COLORS.text, paddingVertical: 10, paddingHorizontal: 15 },
-  searchButton: { padding: 10, marginLeft: 5, justifyContent: 'center', alignItems: 'center' },
-  tabsContainer: { flexDirection: 'row', marginBottom: 16 },
-  tab: { flex: 1, paddingVertical: 10, alignItems: 'center', borderBottomWidth: 2, borderBottomColor: 'transparent' },
+  searchContainer: { flexDirection: 'row',
+     alignItems: 'center',
+      backgroundColor: COLORS.surface || '#222',
+       borderRadius: 8,
+        paddingRight: 5,
+         marginBottom: 16 },
+  searchInput: { flex: 1,
+     color: COLORS.text,
+      paddingVertical: 10,
+       paddingHorizontal: 15 },
+  searchButton: { padding: 10,
+     marginLeft: 5,
+      justifyContent: 'center',
+       alignItems: 'center' },
+  tabsContainer: { flexDirection: 'row',
+     marginBottom: 16 },
+  tab: { flex: 1,
+     paddingVertical: 10,
+      alignItems: 'center',
+       borderBottomWidth: 2,
+        borderBottomColor: 'transparent' },
   tabActive: { borderBottomColor: COLORS.primary },
-  tabText: { color: COLORS.primary, fontSize: 16 },
+  tabText: { color: COLORS.primary,
+     fontSize: 16 },
   list: { flex: 1 },
-  emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingVertical: 40 },
-  emptyText: { fontSize: 18, color: COLORS.textSecondary, textAlign: 'center' },
-  fab: { position: 'absolute', bottom: 20, right: 20, backgroundColor: COLORS.primary, width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center', elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84 }
+  emptyContainer: { flex: 1,
+     justifyContent: 'center',
+      alignItems: 'center',
+       paddingVertical: 40 },
+  emptyText: { fontSize: 18,
+     color: COLORS.textSecondary,
+      textAlign: 'center' },
+  fab: { position: 'absolute',
+     bottom: 20, right: 20,
+      backgroundColor: COLORS.primary,
+       width: 56, height: 56,
+        borderRadius: 28,
+         justifyContent: 'center',
+          alignItems: 'center',
+           elevation: 5,
+            shadowColor: '#000',
+             shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: 0.25, shadowRadius: 3.84 }
 });
