@@ -25,6 +25,10 @@ export default function ReplyBar({ replyingTo, onCancel }) {
     });
   };
 
+  const displayAuthorName = replyingTo.authorName && !replyingTo.authorName.includes("@")
+    ? replyingTo.authorName
+    : "Usuario";
+
   return (
     <Animated.View
       style={[
@@ -40,7 +44,7 @@ export default function ReplyBar({ replyingTo, onCancel }) {
 
       <View style={styles.content}>
         <Text style={styles.replyingTo}>
-          Respondiendo a {replyingTo.author}
+          Respondiendo a {displayAuthorName}
         </Text>
         <Text style={styles.replyingText} numberOfLines={1}>
           {replyingTo.text}

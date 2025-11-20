@@ -8,7 +8,11 @@ export default function Header({ navigation }) {
 
   const {user} = useAuth();
 
-  const onPressProfile= () => {
+  const onPressNotification = () => {
+    navigation.navigate('Notifications');
+  }
+
+  const onPressProfile = () => {
 
     if (user) {
       return navigation.navigate('Profile')
@@ -27,7 +31,7 @@ export default function Header({ navigation }) {
         <Text style={[styles.title, GLOBAL.text]}>ChatBridge</Text>
       </View>
       <View style={styles.icons}>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={onPressNotification}>
           <Ionicons name="notifications-outline" size={24} color={COLORS.primary} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.profile} onPress={onPressProfile}>

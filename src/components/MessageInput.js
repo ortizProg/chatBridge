@@ -10,11 +10,11 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { COLORS, GLOBAL } from "../styles/styles";
 
-export default function MessageInput({ onSend }) {
+export default function MessageInput({ onSend, onSendComplete }) {
   const [message, setMessage] = useState("");
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (message.trim()) {
       Animated.sequence([
         Animated.timing(scaleAnim, {
@@ -30,9 +30,15 @@ export default function MessageInput({ onSend }) {
         }),
       ]).start();
 
-      onSend(message);
-      setMessage("");
+      const messageToSend = message;
+      setMessage(""); 
       Keyboard.dismiss();
+      
+      await onSend(messageToSend);
+      
+      if (onSendComplete) {
+        onSendComplete();
+      }
     }
   };
 

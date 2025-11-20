@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { View, Text, FlatList, ActivityIndicator } from "react-native";
 import Header from "../components/Header";
 import SearchBar from "../components/SearchBar";
@@ -6,10 +6,20 @@ import DiscussionItem from "../components/DiscussionItem";
 import { GLOBAL, COLORS } from "../styles/styles";
 import { usePosts } from "../context/PostContext";
 import { useAuth } from "../context/AuthContext";
+import { useNotification } from "../context/NotificationContext";
 
 export default function HomeScreen({ navigation }) {
   const { posts, loading } = usePosts();
   const { user } = useAuth();
+  const { expoPushToken, registerNotificationToken } = useNotification();
+
+  useEffect(() => {
+    if(!user) return;
+    console.log(user?.notificationPushToken != expoPushToken)
+    if(!expoPushToken || user?.notificationPushToken != expoPushToken) {
+      registerNotificationToken();
+    }
+  }, [user])
 
   const handleProfilePress = () => {
     if (user) {
