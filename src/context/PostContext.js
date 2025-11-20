@@ -74,6 +74,7 @@ export const PostProvider = ({ children }) => {
       return false;
     }
 
+
     if (!user) {
       Alert.alert('Error', 'Debes iniciar sesión para publicar');
       return false;
@@ -87,6 +88,8 @@ export const PostProvider = ({ children }) => {
         `${userData?.primer_nombre || ''} ${userData?.primer_apellido || ''}`.trim() ||
         user.email ||
         'Usuario';
+
+
 
       await addDoc(collection(db, 'posts'), {
         title: title.trim(),

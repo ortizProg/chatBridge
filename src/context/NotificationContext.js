@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
-import { doc, updateDoc } from "firebase/firestore";
-import { auth, db } from '../firebase';
+import {
+  collection,
+  doc,
+  addDoc,
+  updateDoc,
+  getDoc,
+} from 'firebase/firestore';
+import { db } from '../firebase';
 import { Platform, Alert } from 'react-native';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
@@ -104,6 +110,26 @@ export const NotificationProvider = ({ children }) => {
       return docSnap.data()?.notificationPushToken ?? undefined;
   }
 
+  const notificationsCollectionRef = (userId) =>
+    collection(db, 'users', userId, 'notifications');
+
+  const createNotification = async (
+    userId,
+    data
+  ) => {
+    const docRef = await addDoc(notificationsCollectionRef(userId), {
+      userId,
+      title: data.title,
+      title: data.body,
+      read: false,
+      createdAt: new Date().toISOString(),
+    });
+
+    sendPushNotification(userId, data.title, data?.body, data?.data);
+
+    return docRef.id;
+  };
+
   async function sendPushNotification(userUid, title, body, data = {}) {
 
     const token = await getNotificationTokenByUser(userUid);
@@ -140,7 +166,7 @@ export const NotificationProvider = ({ children }) => {
   }
 
   const value = useMemo(
-    () => ({ expoPushToken, sendPushNotification, registerNotificationToken, clearToken  }),
+    () => ({ expoPushToken, sendPushNotification, registerNotificationToken, clearToken, createNotification }),
     [expoPushToken]
   );
 
