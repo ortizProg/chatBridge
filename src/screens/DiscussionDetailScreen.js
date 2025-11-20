@@ -18,6 +18,7 @@ import ReplyBar from "../components/ReplyBar";
 import MessageInput from "../components/MessageInput";
 import { useAuth } from "../context/AuthContext";
 import { useComments } from "../hooks/useComments";
+import { useNotification } from "../context/NotificationContext";
 
 export default function DiscussionDetailScreen({ route }) {
   const navigation = useNavigation();
@@ -26,6 +27,8 @@ export default function DiscussionDetailScreen({ route }) {
   const headerOpacity = useRef(new Animated.Value(0)).current;
 
   const { user } = useAuth();
+  const { createNotification } = useNotification();
+
   const currentUser = { uid: user?.uid, userName: user?.userName || user?.displayName || "Usuario" };
 
   const { comments, loadingComments, addComment } = useComments(item.id, currentUser);
@@ -51,6 +54,16 @@ export default function DiscussionDetailScreen({ route }) {
     if (res.success) {
       setReplyingTo(null);
       setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 150);
+
+      const data = {
+        title: 'Publicación',
+        body: `Alguien ha comentado tu publicación "${item.title}"`
+      }
+
+      if(item.userId != user.uid) {
+        createNotification(item.userId, data);
+      }
+
     } else {
       console.log("Error al agregar comentario", res.error);
     }

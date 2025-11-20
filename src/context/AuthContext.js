@@ -28,7 +28,7 @@ export const AuthProvider = ({ children }) => {
     await signInWithEmailAndPassword(auth, email, password).then(async (userCredential) => {
       const userLogin = userCredential?.user;
       const userInfo = await getUserInfo(userLogin.uid);
-      setUser({userLogin, ...userInfo});
+      setUser({...userLogin, ...userInfo});
     }).catch(error => {
       Alert.alert('Error al iniciar sesión', 'Las credenciales son invalidas');
     });
