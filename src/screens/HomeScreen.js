@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { View, Text, FlatList, ActivityIndicator } from "react-native";
+import React, { useEffect, useState, useMemo } from "react";
+import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, StyleSheet } from "react-native";
 import Header from "../components/Header";
 import SearchBar from "../components/SearchBar";
 import DiscussionItem from "../components/DiscussionItem";
@@ -12,6 +12,7 @@ export default function HomeScreen({ navigation }) {
   const { posts, loading } = usePosts();
   const { user } = useAuth();
   const { expoPushToken, registerNotificationToken } = useNotification();
+  const [activeTab, setActiveTab] = useState("popular"); 
 
   useEffect(() => {
     if(!user) return;
@@ -28,6 +29,26 @@ export default function HomeScreen({ navigation }) {
       navigation.navigate("Login");
     }
   };
+
+  const sortedPosts = useMemo(() => {
+    if (!posts || posts.length === 0) return [];
+
+    const postsCopy = [...posts];
+
+    if (activeTab === "popular") {
+      return postsCopy.sort((a, b) => {
+        const likesA = a.stats?.likes || 0;
+        const likesB = b.stats?.likes || 0;
+        return likesB - likesA;
+      });
+    } else {
+      return postsCopy.sort((a, b) => {
+        const dateA = a.createdAt?.toDate?.() || a.createdAt || new Date(0);
+        const dateB = b.createdAt?.toDate?.() || b.createdAt || new Date(0);
+        return dateB - dateA;
+      });
+    }
+  }, [posts, activeTab]);
 
   if (loading) {
     return (
@@ -50,13 +71,30 @@ export default function HomeScreen({ navigation }) {
       <Header navigation={navigation} onProfilePress={handleProfilePress} />
       <SearchBar />
 
-      <View style={GLOBAL.tabs}>
-        <Text style={GLOBAL.tabActive}>Populares</Text>
-        <Text style={GLOBAL.tab}>Recientes</Text>
+      <View style={styles.tabsContainer}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "popular" && styles.tabActive]}
+          onPress={() => setActiveTab("popular")}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.tabText, GLOBAL.text]}>
+            Populares
+          </Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "recent" && styles.tabActive]}
+          onPress={() => setActiveTab("recent")}
+          activeOpacity={0.7}
+        >
+          <Text style={[styles.tabText, GLOBAL.text]}>
+            Recientes
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <FlatList
-        data={posts}
+        data={sortedPosts}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <DiscussionItem item={item} />}
         contentContainerStyle={{ paddingBottom: 80 }}
@@ -74,3 +112,25 @@ export default function HomeScreen({ navigation }) {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  tabsContainer: {
+    flexDirection: 'row',
+    marginBottom: 16,
+    paddingHorizontal: 16,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+  tabActive: {
+    borderBottomColor: COLORS.primary,
+  },
+  tabText: {
+    color: COLORS.primary,
+    fontSize: 16,
+  },
+});

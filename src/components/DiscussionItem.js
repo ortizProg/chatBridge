@@ -4,11 +4,34 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { COLORS, GLOBAL } from "../styles/styles";
 import { usePosts } from "../context/PostContext";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from '../firebase';
 
 export default function DiscussionItem({ item }) {
   const navigation = useNavigation();
   const { updatePostStats } = usePosts();
   const [liked, setLiked] = useState(item.userHasLiked || false);
+  const [userImage, setUserImage] = useState(null);
+
+  useEffect(() => {
+    const fetchUserImage = async () => {
+      if (!item.userId) return;
+      
+      try {
+        const userDocRef = doc(db, 'users', item.userId);
+        const userDocSnap = await getDoc(userDocRef);
+        
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data();
+          setUserImage(userData.img || null);
+        }
+      } catch (error) {
+        console.error("Error al obtener imagen del usuario:", error);
+      }
+    };
+
+    fetchUserImage();
+  }, [item.userId]);
 
   useEffect(() => {
     setLiked(item.userHasLiked || false);
@@ -35,16 +58,33 @@ export default function DiscussionItem({ item }) {
     updatePostStats(item.id, "views");
   };
 
+  const getInitials = (userName) => {
+    if (!userName) return "U";
+    const names = userName.split(' ');
+    if (names.length >= 2) {
+      return (names[0][0] + names[1][0]).toUpperCase();
+    }
+    return userName.substring(0, 2).toUpperCase();
+  };
+
   return (
     <TouchableOpacity
       style={[GLOBAL.card, styles.container]}
       activeOpacity={0.7}
       onPress={goToDetail}
     >
-      <Image
-        source={require("../assets/images/Dayrito.png")}
-        style={styles.avatar}
-      />
+      {userImage ? (
+        <Image
+          source={{ uri: userImage }}
+          style={styles.avatar}
+        />
+      ) : (
+        <View style={styles.avatarPlaceholder}>
+          <Text style={styles.avatarText}>
+            {getInitials(item.userName)}
+          </Text>
+        </View>
+      )}
 
       <View style={styles.content}>
         <Text style={[styles.author, GLOBAL.textSecondary]} numberOfLines={1}>
@@ -114,6 +154,19 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     backgroundColor: "#2a2a2a",
+  },
+  avatarPlaceholder: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#4a5568',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#ffffff',
   },
   content: {
     marginLeft: 12,

@@ -19,10 +19,12 @@ import MessageInput from "../components/MessageInput";
 import { useAuth } from "../context/AuthContext";
 import { useComments } from "../hooks/useComments";
 import { useNotification } from "../context/NotificationContext";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from '../firebase';
 
 export default function DiscussionDetailScreen({ route }) {
   const navigation = useNavigation();
-  const { item } = route.params;
+  const { item } = route?.params || {};
   const flatListRef = useRef(null);
   const headerOpacity = useRef(new Animated.Value(0)).current;
 
@@ -34,6 +36,27 @@ export default function DiscussionDetailScreen({ route }) {
   const { comments, loadingComments, addComment } = useComments(item.id, currentUser);
 
   const [replyingTo, setReplyingTo] = useState(null);
+  const [userImage, setUserImage] = useState(null);
+
+  useEffect(() => {
+    const fetchUserImage = async () => {
+      if (!item.userId) return;
+      
+      try {
+        const userDocRef = doc(db, 'users', item.userId);
+        const userDocSnap = await getDoc(userDocRef);
+        
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data();
+          setUserImage(userData.img || null);
+        }
+      } catch (error) {
+        console.error("Error al obtener imagen del usuario:", error);
+      }
+    };
+
+    fetchUserImage();
+  }, [item.userId]);
 
   useEffect(() => {
     Animated.timing(headerOpacity, {
@@ -69,6 +92,15 @@ export default function DiscussionDetailScreen({ route }) {
     }
   };
 
+  const getInitials = (userName) => {
+    if (!userName) return "U";
+    const names = userName.split(' ');
+    if (names.length >= 2) {
+      return (names[0][0] + names[1][0]).toUpperCase();
+    }
+    return userName.substring(0, 2).toUpperCase();
+  };
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1, backgroundColor: COLORS.background }}
@@ -87,10 +119,18 @@ export default function DiscussionDetailScreen({ route }) {
 
           <View style={[GLOBAL.card, styles.postContainer]}>
             <View style={styles.header}>
-              <Image
-                source={ item.image ? item.image : require("../assets/images/Dayrito.png") }
-                style={styles.avatar}
-              />
+              {userImage ? (
+                <Image
+                  source={{ uri: userImage }}
+                  style={styles.avatar}
+                />
+              ) : (
+                <View style={styles.avatarPlaceholder}>
+                  <Text style={styles.avatarText}>
+                    {getInitials(item.userName)}
+                  </Text>
+                </View>
+              )}
               <View style={styles.headerContent}>
                 <Text style={[styles.title, GLOBAL.text]}>{item.title}</Text>
                 <Text style={[styles.description, GLOBAL.textSecondary]}>{item.description}</Text>
@@ -164,6 +204,19 @@ const styles = StyleSheet.create({
     height: 50, 
     borderRadius: 25, 
     backgroundColor: "#2a2a2a" 
+  },
+  avatarPlaceholder: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#4a5568',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  avatarText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#ffffff',
   },
   headerContent: { 
     flex: 1 
