@@ -39,7 +39,7 @@ export function useComments(postId, currentUser) {
                     'Usuario';
                 }
               } catch (err) {
-                console.error('Error fetching user data:', err);
+                console.error('Error al obtener datos del usuario:', err);
               }
             }
             
@@ -56,7 +56,7 @@ export function useComments(postId, currentUser) {
                   }
                 }
               } catch (err) {
-                console.error('Error fetching reply user data:', err);
+                console.error('Error al obtener datos del usuario de respuesta:', err);
               }
             }
             
@@ -67,7 +67,7 @@ export function useComments(postId, currentUser) {
         setLoadingComments(false);
       },
       (err) => {
-        console.error("comments listener error:", err);
+        console.error("Error en el listener de comentarios:", err);
         setLoadingComments(false);
       }
     );
@@ -76,8 +76,8 @@ export function useComments(postId, currentUser) {
   }, [postId]);
 
   const addComment = useCallback(async (text, replyTo = null) => {
-    if (!postId) throw new Error("postId is required");
-    if (!currentUser?.uid) throw new Error("User must be authenticated");
+    if (!postId) throw new Error("Se requiere postId");
+    if (!currentUser?.uid) throw new Error("El usuario debe estar autenticado");
 
     const postRef = doc(db, "posts", postId);
 
@@ -111,7 +111,7 @@ export function useComments(postId, currentUser) {
       await batch.commit();
       return { success: true };
     } catch (error) {
-      console.error("addComment error:", error);
+      console.error("Error al agregar comentario:", error);
       return { success: false, error };
     }
   }, [postId, currentUser]);
